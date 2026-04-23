@@ -1,6 +1,7 @@
 import { useState, useEffect, lazy, Suspense, Component, type ErrorInfo, type ReactNode } from "react"
 import { createPortal } from "react-dom"
 import { AppSidebar } from "@/components/app-sidebar"
+import { addToRecent } from "@/components/NavRecent"
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt"
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt"
 import { LandingPage } from "@/components/LandingPage"
@@ -199,7 +200,7 @@ function QuickActionCard({
       <button
         type="button"
         onClick={() => onNavigate(page)}
-        className="group w-full rounded-2xl border border-border/80 bg-card/75 p-4 text-left shadow-sm hover:bg-card hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+        className="group w-full rounded-xl border border-border/80 bg-card/75 p-4 text-left shadow-sm hover:bg-card hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
       >
         <div className="flex items-center gap-2.5 pr-5">
           <Icon className={`size-5 shrink-0 ${iconClass ?? "text-primary"}`} />
@@ -230,7 +231,7 @@ function AddQuickAccessCard({ onClick, label }: { onClick: () => void; label: st
     <button
       type="button"
       onClick={onClick}
-      className="group w-full rounded-2xl border border-dashed border-border/80 bg-card/40 p-4 text-left shadow-sm hover:border-primary/60 hover:bg-primary/5 hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+      className="group w-full rounded-xl border border-dashed border-border/80 bg-card/40 p-4 text-left shadow-sm hover:border-primary/60 hover:bg-primary/5 hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
     >
       <div className="flex items-center gap-2.5">
         <Plus className="size-5 shrink-0 text-primary" />
@@ -323,6 +324,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
     const limited = next.slice(0, QUICK_ACCESS_LIMIT)
     setQuickAccess(limited)
     localStorage.setItem(LS_HOME_QUICK_ACCESS, JSON.stringify(limited))
+    window.dispatchEvent(new Event("fcalendar_quick_access_changed"))
   }
 
   const addQuickAccess = (id: QuickAccessId) => {
@@ -453,6 +455,21 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
       window.removeEventListener("fcalendar_pins_changed", sync)
       window.removeEventListener("focus", sync)
     }
+  }, [])
+
+  // Sync quick access when sidebar modifies it
+  useEffect(() => {
+    const syncQA = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem(LS_HOME_QUICK_ACCESS) || "[]")
+        if (!Array.isArray(stored)) return
+        const normalized = stored.filter(isQuickAccessId)
+        const unique = normalized.filter((id: QuickAccessId, i: number) => normalized.indexOf(id) === i)
+        setQuickAccess(unique.slice(0, QUICK_ACCESS_LIMIT))
+      } catch {}
+    }
+    window.addEventListener("fcalendar_quick_access_changed", syncQA)
+    return () => window.removeEventListener("fcalendar_quick_access_changed", syncQA)
   }, [])
 
   const pinnedRoutesOrdered = [...pinnedRoutes].sort((a, b) => {
@@ -1210,7 +1227,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
               onRemove={() => removeQuickAccess(card.id)}
             />
           ))}
-          {isEditMode && quickAccess.length < QUICK_ACCESS_LIMIT && (
+          {isEditMode && quickAccess.length > 0 && quickAccess.length < QUICK_ACCESS_LIMIT && (
             <AddQuickAccessCard onClick={() => setShowQuickPicker(v => !v)} label={homeText.addCard} />
           )}
         </div>
@@ -1223,6 +1240,16 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                 ? "Tap Add Card to place your navigation shortcuts on Home."
                 : "Turn on Edit Mode to add navigation shortcuts here for faster access."}
             </p>
+            {isEditMode && (
+              <button
+                type="button"
+                onClick={() => setShowQuickPicker(v => !v)}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-dashed border-primary/50 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10 hover:border-primary/70 transition-colors"
+              >
+                <Plus className="size-4" />
+                Add Card
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -1621,6 +1648,13 @@ function AppContent() {
 
   const handlePageChange = (page: string) => {
     if (page === currentPage) return
+    
+    // Track recently visited pages
+    const trackablePages = ["route-list", "deliveries", "rooster", "plano-vm", "gallery-album", "settings-profile"]
+    if (trackablePages.includes(page)) {
+      addToRecent(page as any)
+    }
+    
     // Auto-close sidebar on navigation
     if (isMobile) setOpenMobile(false)
     else setOpen(false)

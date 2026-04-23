@@ -257,7 +257,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
       <Dialog open={open} onOpenChange={(o) => { if (!o) { setPendingUrl(null); setPendingUrlLabel("") } onOpenChange(o) }}>
       <DialogContent
         onInteractOutside={handleDialogInteractOutside}
-        className="flex max-h-[min(78vh,34rem)] w-[90vw] max-w-[20rem] flex-col gap-0 overflow-hidden rounded-xl p-0 md:max-w-sm"
+        className="flex max-h-[min(77vh,33rem)] w-[91vw] max-w-[20.5rem] flex-col gap-0 overflow-hidden rounded-[22px] border border-border/70 bg-card/70 p-0 shadow-[0_10px_26px_hsl(var(--foreground)/0.08)] backdrop-blur-md md:max-w-[21.5rem]"
       >
         {/* Header */}
         <DialogHeader className="shrink-0 border-b border-border px-4 pt-4 pb-3 text-left md:px-5 md:pt-5 md:pb-4">
@@ -305,13 +305,13 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
               )
             )}
             <div className="flex-1 min-w-0">
-              <DialogTitle className="truncate text-[12px] font-bold text-foreground md:text-[14px] md:leading-tight">
+              <DialogTitle className="truncate text-[11px] font-bold text-foreground md:text-[13px] md:leading-tight">
                 {point.name}
               </DialogTitle>
               <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1">
-                <span className="text-xs font-mono text-muted-foreground">{point.code}</span>
-                <span className="text-xs text-muted-foreground/60">•</span>
-                <span className="text-[10px] text-muted-foreground">{point.delivery}</span>
+                <span className="text-[11px] font-mono text-muted-foreground">{point.code}</span>
+                <span className="text-[11px] text-muted-foreground/60">•</span>
+                <span className="text-[9px] text-muted-foreground">{point.delivery}</span>
               </div>
             </div>
           </div>
@@ -322,11 +322,11 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
           {/* Information section */}
           <div>
             <div className="flex items-center justify-between mb-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Information</p>
+              <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">Information</p>
               {isEditMode && !isEditing && (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="text-xs text-primary hover:text-primary/80 font-medium px-2 py-0.5 rounded-md hover:bg-primary/10 transition-colors"
+                  className="text-[11px] text-primary hover:text-primary/80 font-medium px-2 py-0.5 rounded-md hover:bg-primary/10 transition-colors"
                 >
                   Edit
                 </button>
@@ -362,13 +362,13 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                           }
                           if (isHexColor(normalized)) setMarkerColor(normalized)
                         }}
-                        className="h-8 flex-1 text-[11px] md:text-[11px]"
+                        className="h-8 flex-1 text-[10px] md:text-[10px]"
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-8 px-2 text-[10px]"
+                        className="h-8 px-2 text-[9px]"
                         onClick={() => {
                           setMarkerColor(undefined)
                           setMarkerColorInput("")
@@ -385,13 +385,13 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                       placeholder="Key"
                       value={d.key}
                       onChange={e => handleChange(i, "key", e.target.value)}
-                      className="w-28 h-8 text-[11px] md:text-[11px]"
+                      className="w-28 h-8 text-[10px] md:text-[10px]"
                     />
                     <Input
                       placeholder="Value"
                       value={d.value}
                       onChange={e => handleChange(i, "value", e.target.value)}
-                      className="flex-1 h-8 text-[11px] md:text-[11px]"
+                      className="flex-1 h-8 text-[10px] md:text-[10px]"
                     />
                     <button
                       onClick={() => handleRemove(i)}
@@ -403,7 +403,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                 ))}
                 <button
                   onClick={handleAdd}
-                  className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 font-medium mt-1"
+                  className="flex items-center gap-1 text-[11px] text-blue-500 hover:text-blue-600 font-medium mt-1"
                 >
                   <Plus className="size-3.5" />
                   Add field
@@ -415,13 +415,13 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                   <dl className="space-y-1.5">
                     {drafts.map((d, i) => (
                       <div key={i} className="grid grid-cols-[84px_1fr] items-start gap-x-2.5 px-2 py-1">
-                        <dt className="text-[11px] font-medium text-muted-foreground text-left">{d.key}</dt>
-                        <dd className="text-[10px] font-normal text-foreground text-left leading-relaxed">{d.value}</dd>
+                        <dt className="text-[10px] font-medium text-muted-foreground text-left">{d.key}</dt>
+                        <dd className="text-[9px] font-normal text-foreground text-left leading-relaxed">{d.value}</dd>
                       </div>
                     ))}
                   </dl>
                 ) : (
-                  <p className="text-[12px] text-muted-foreground text-center py-5">No information added</p>
+                  <p className="text-[11px] text-muted-foreground text-center py-5">No information added</p>
                 )}
               </div>
             )}
@@ -430,7 +430,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
           {/* Navigation buttons */}
           {!isEditing && (
             <div className="mt-2">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Open With</p>
+              <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Open With</p>
               <div className="flex flex-col gap-1.5">
 
                 {/* Google Maps row */}
@@ -439,7 +439,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                     <div className="transition-transform duration-300 ease-in-out" style={{ display: 'grid', gridTemplateColumns: '100% 100%', transform: pendingUrlLabel === 'Google Maps' ? 'translateX(-100%)' : 'translateX(0)' }}>
                       <button onClick={() => openUrl(gmapsUrl, "Google Maps")} className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-muted/50 hover:bg-muted transition-all active:scale-[0.98] group">
                         <img src="/Gmaps.png" alt="Google Maps" className="w-7 h-7 rounded-lg object-cover shrink-0" />
-                        <span className="flex-1 text-left text-xs font-semibold text-foreground">Google Maps</span>
+                        <span className="flex-1 text-left text-[11px] font-semibold text-foreground">Google Maps</span>
                         <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
                       </button>
                       <div className="relative overflow-hidden bg-muted/50">
@@ -451,8 +451,8 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                           >
                             <img src="/Gmaps.png" alt="Google Maps" className="w-7 h-7 rounded-lg object-cover shrink-0" />
                             <div className="min-w-0">
-                              <p className="text-xs font-semibold text-foreground leading-tight truncate">Open Google Maps?</p>
-                              <p className="text-[9px] text-muted-foreground mt-0.5">Will leave this app</p>
+                              <p className="text-[11px] font-semibold text-foreground leading-tight truncate">Open Google Maps?</p>
+                              <p className="text-[8px] text-muted-foreground mt-0.5">Will leave this app</p>
                             </div>
                           </button>
                           <div className="flex items-center shrink-0">
@@ -470,7 +470,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                     <div className="transition-transform duration-300 ease-in-out" style={{ display: 'grid', gridTemplateColumns: '100% 100%', transform: pendingUrlLabel === 'Waze' ? 'translateX(-100%)' : 'translateX(0)' }}>
                       <button onClick={() => openUrl(wazeUrl, "Waze")} className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-muted/50 hover:bg-muted transition-all active:scale-[0.98] group">
                         <img src="/waze.png" alt="Waze" className="w-7 h-7 rounded-lg object-cover shrink-0" />
-                        <span className="flex-1 text-left text-xs font-semibold text-foreground">Waze</span>
+                        <span className="flex-1 text-left text-[11px] font-semibold text-foreground">Waze</span>
                         <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
                       </button>
                       <div className="relative overflow-hidden bg-muted/50">
@@ -482,8 +482,8 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                           >
                             <img src="/waze.png" alt="Waze" className="w-7 h-7 rounded-lg object-cover shrink-0" />
                             <div className="min-w-0">
-                              <p className="text-xs font-semibold text-foreground leading-tight truncate">Open Waze?</p>
-                              <p className="text-[9px] text-muted-foreground mt-0.5">Will leave this app</p>
+                              <p className="text-[11px] font-semibold text-foreground leading-tight truncate">Open Waze?</p>
+                              <p className="text-[8px] text-muted-foreground mt-0.5">Will leave this app</p>
                             </div>
                           </button>
                           <div className="flex items-center shrink-0">
@@ -500,7 +500,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                   <div className="transition-transform duration-300 ease-in-out" style={{ display: 'grid', gridTemplateColumns: '100% 100%', transform: pendingUrlLabel === 'FamilyMart' ? 'translateX(-100%)' : 'translateX(0)' }}>
                       <button onClick={() => openUrl(familyMartUrl, "FamilyMart")} className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-muted/50 hover:bg-muted transition-all active:scale-[0.98] group">
                       <img src="/FamilyMart.png" alt="FamilyMart" className="w-7 h-7 rounded-lg object-cover shrink-0" />
-                      <span className="flex-1 text-left text-xs font-semibold text-foreground">FamilyMart</span>
+                      <span className="flex-1 text-left text-[11px] font-semibold text-foreground">FamilyMart</span>
                       <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
                     </button>
                     <div className="relative overflow-hidden bg-muted/50">
@@ -512,8 +512,8 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                         >
                           <img src="/FamilyMart.png" alt="FamilyMart" className="w-7 h-7 rounded-lg object-cover shrink-0" />
                           <div className="min-w-0">
-                            <p className="text-xs font-semibold text-foreground leading-tight truncate">Open FamilyMart?</p>
-                            <p className="text-[9px] text-muted-foreground mt-0.5">Will leave this app</p>
+                            <p className="text-[11px] font-semibold text-foreground leading-tight truncate">Open FamilyMart?</p>
+                            <p className="text-[8px] text-muted-foreground mt-0.5">Will leave this app</p>
                           </div>
                         </button>
                         <div className="flex items-center shrink-0">
@@ -530,7 +530,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                     <div className="transition-transform duration-300 ease-in-out" style={{ display: 'grid', gridTemplateColumns: '100% 100%', transform: pendingUrlLabel === 'QR Code' ? 'translateX(-100%)' : 'translateX(0)' }}>
                       <button onClick={() => openUrl(qrCodeDestinationUrl, "QR Code")} className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-muted/50 hover:bg-muted transition-all active:scale-[0.98] group">
                         <QrCode className="w-7 h-7 text-orange-500 shrink-0 p-1" />
-                        <span className="flex-1 text-left text-xs font-semibold text-foreground">QR Code</span>
+                        <span className="flex-1 text-left text-[11px] font-semibold text-foreground">QR Code</span>
                         <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
                       </button>
                       <div className="relative overflow-hidden bg-muted/50">
@@ -542,8 +542,8 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                           >
                             <QrCode className="w-7 h-7 text-orange-500 shrink-0 p-1" />
                             <div className="min-w-0">
-                              <p className="text-xs font-semibold text-foreground leading-tight truncate">Open QR Code?</p>
-                              <p className="text-[9px] text-muted-foreground mt-0.5">Will leave this app</p>
+                              <p className="text-[11px] font-semibold text-foreground leading-tight truncate">Open QR Code?</p>
+                              <p className="text-[8px] text-muted-foreground mt-0.5">Will leave this app</p>
                             </div>
                           </button>
                           <div className="flex items-center shrink-0">
@@ -567,7 +567,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                         {qrCodeImageUrl ? <Pencil className="w-2.5 h-2.5" /> : <Plus className="w-2.5 h-2.5" />}
                       </span>
                     </div>
-                    <span className="flex-1 text-left text-xs font-semibold text-foreground">
+                    <span className="flex-1 text-left text-[11px] font-semibold text-foreground">
                       {qrCodeImageUrl ? "Edit QR Code" : "Add QR Code"}
                     </span>
                     <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />

@@ -32,6 +32,7 @@ import { Switch } from "@/components/ui/switch"
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
+import { NavRecent } from "@/components/NavRecent"
 import {
   Sidebar,
   SidebarContent,
@@ -256,7 +257,7 @@ export function AppSidebar({
                 <img
                   src={fmLogo}
                   alt="FM logo"
-                  className="mx-auto h-[80px] w-[80px] shrink-0 object-contain"
+                  className="mx-auto h-[90px] w-[90px] shrink-0 object-contain"
                 />
               </a>
             </SidebarMenuButton>
@@ -265,14 +266,14 @@ export function AppSidebar({
       </SidebarHeader>
       <Separator className="my-1" />
       {/* Search field */}
-      <div className="relative mt-1 mb-4 px-2 sidebar-search-wrapper">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none transition-colors" />
+      <div className="relative mt-2 mb-3 px-3 sidebar-search-wrapper">
+        <Search className="absolute left-6 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none transition-colors" />
         <input
           type="text"
           placeholder={text.searchPlaceholder}
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="sidebar-search h-10 w-full rounded-md border border-input bg-background pl-9 pr-8 text-xs md:text-sm shadow-none outline-none ring-0 transition-all duration-200 placeholder:text-muted-foreground/60 focus:ring-1 focus:ring-ring"
+          className="sidebar-search h-10 w-full rounded-md border border-input bg-background pl-11 pr-8 text-xs md:text-sm shadow-none outline-none ring-0 transition-all duration-200 placeholder:text-muted-foreground/60 focus:ring-1 focus:ring-ring"
         />
         {searchQuery && (
           <button
@@ -284,6 +285,11 @@ export function AppSidebar({
         )}
       </div>
       <SidebarContent>
+        <NavRecent
+          onNavigate={onNavigate}
+          searchQuery={searchQuery}
+        />
+        <Separator className="my-2" />
         <NavMain
           items={filteredNavMain}
           onItemClick={handleNavClick}
@@ -312,7 +318,7 @@ export function AppSidebar({
       <SidebarFooter>
         {/* Theme toggle */}
         <div
-          className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-sidebar-accent/50 transition-colors cursor-pointer mx-1"
+          className="flex items-center gap-2 px-3 py-2.5 rounded-md hover:bg-sidebar-accent/50 transition-colors cursor-pointer mx-1"
           onClick={toggleMode}
         >
           {mode === "dark"
@@ -327,7 +333,7 @@ export function AppSidebar({
         </div>
         {/* Edit Mode toggle */}
         <div
-          className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors cursor-pointer mx-1 ${
+          className={`flex items-center gap-2 px-3 py-2.5 rounded-md transition-colors cursor-pointer mx-1 ${
             isEditMode ? "text-primary hover:bg-primary/10" : "hover:bg-sidebar-accent/50"
           }`}
           onClick={handleEditModeToggle}
