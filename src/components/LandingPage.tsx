@@ -97,7 +97,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
         <div className="w-full max-w-3xl mx-auto text-center space-y-8">
           {/* Main Title */}
           <h1
-            className={`mx-auto max-w-[14ch] px-2 text-[clamp(1.4rem,7.2vw,2.2rem)] sm:text-2xl lg:text-3xl font-bold tracking-tight break-words [text-wrap:balance] text-foreground transition-all duration-700 ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
+            className={`mx-auto max-w-[14ch] px-2 text-[clamp(1.25rem,6.4vw,2rem)] sm:text-[1.35rem] lg:text-[1.7rem] font-bold tracking-tight break-words [text-wrap:balance] text-foreground transition-all duration-700 ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
             style={{ transitionDelay: visible ? "100ms" : "0ms" }}
           >
             Data Brutal
@@ -139,7 +139,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                   </div>
                   <h3 className="text-sm font-semibold text-left leading-none text-foreground">{title}</h3>
                 </div>
-                <p className="text-xs text-left mt-1.5 leading-relaxed text-muted-foreground">{description}</p>
+                <p className="text-xs font-medium text-left mt-1.5 leading-relaxed text-muted-foreground">{description}</p>
               </div>
             ))}
           </div>

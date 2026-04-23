@@ -691,6 +691,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
   // Responsive card dimensions — measure the actual container so CSS zoom is handled correctly
   const cardContainerRef = useRef<HTMLDivElement>(null)
   const cardCarouselRef = useRef<HTMLDivElement>(null)
+  const [cardContainerWidth, setCardContainerWidth] = useState(0)
   const [cardW, setCardW] = useState(300)
   const [cardH, setCardH] = useState(460)
   const [activeCarouselIndex, setActiveCarouselIndex] = useState(0)
@@ -700,15 +701,18 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
     if (!el) return
     const ro = new ResizeObserver(entries => {
       const containerWidth = entries[0].contentRect.width
+      setCardContainerWidth(containerWidth)
       const viewportWidth = window.innerWidth
-      const mobileInset = viewportWidth < 640 ? 32 : viewportWidth < 1024 ? 48 : 64
-      const nextCardWidth = Math.min(360, Math.max(280, Math.min(containerWidth, viewportWidth - mobileInset)))
+      const mobileInset = viewportWidth < 640 ? 32 : viewportWidth < 1024 ? 48 : 72
+      const columns = viewportWidth >= 1280 ? 3 : viewportWidth >= 900 ? 2 : 1
+      const targetWidth = (containerWidth - CAROUSEL_GAP * (columns - 1)) / columns
+      const nextCardWidth = Math.min(420, Math.max(280, Math.min(targetWidth, viewportWidth - mobileInset)))
       setCardW(nextCardWidth)
       setCardH(Math.min(580, Math.max(400, window.innerHeight / 1.2 - (viewportWidth < 640 ? 180 : 220))))
     })
     ro.observe(el)
     return () => ro.disconnect()
-  }, [])
+  }, [CAROUSEL_GAP])
 
 
   // Pinned routes stored in localStorage
@@ -921,6 +925,9 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
 
   // Only show first 3 route cards when collapsed
   const displayedRoutes = showAllRoutes ? filteredRoutes : filteredRoutes.slice(0, 4)
+  const totalCardItems = displayedRoutes.length + ((isEditMode || isPlaygroundMode) ? 1 : 0)
+  const cardTrackWidth = totalCardItems > 0 ? (totalCardItems * cardW) + ((totalCardItems - 1) * CAROUSEL_GAP) : 0
+  const shouldCenterCardTrack = cardContainerWidth > 0 && cardTrackWidth <= cardContainerWidth
 
   const scrollToCarouselIndex = useCallback((index: number) => {
     const scroller = cardCarouselRef.current
@@ -2516,7 +2523,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
 
         {/* ── Card list (carousel) ── */}
         <div ref={cardContainerRef} style={{ width: '100%' }}>
-        {displayedRoutes.length > 1 && (
+        {displayedRoutes.length > 1 && !shouldCenterCardTrack && (
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="text-[11px] font-medium text-muted-foreground">
               Card {Math.min(activeCarouselIndex + 1, displayedRoutes.length)} / {displayedRoutes.length}
@@ -2548,6 +2555,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
           style={{
             display: 'flex',
             gap: `${CAROUSEL_GAP}px`,
+            justifyContent: shouldCenterCardTrack ? 'center' : 'flex-start',
             overflowX: 'auto',
             overflowY: 'hidden',
             alignItems: 'start',

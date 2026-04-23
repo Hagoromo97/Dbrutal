@@ -1646,7 +1646,6 @@ function AppContent() {
                 <h2 className="text-base font-semibold tracking-tight text-foreground">{contentText.locationTitle}</h2>
               </div>
               <p className="ml-7 text-sm text-muted-foreground leading-relaxed">{contentText.locationSubtitle}</p>
-              <Separator className="mt-4" />
             </div>
             <DeliveryTableDialog />
           </div>

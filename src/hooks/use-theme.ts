@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 
 export type ColorMode = "light" | "dark"
-const LS_EYE_COMFORT = "eye-comfort"
 
 /** meta theme-color backgrounds */
 const META_BG: Record<ColorMode, string> = {
@@ -86,9 +85,6 @@ export function useTheme() {
   const [textSize, setTextSize] = useState<TextSize>(() =>
     (localStorage.getItem("text-size") as TextSize) ?? "14"
   )
-  const [eyeComfort, setEyeComfort] = useState<boolean>(() =>
-    localStorage.getItem(LS_EYE_COMFORT) === "1"
-  )
 
   // Apply color mode
   useEffect(() => {
@@ -132,20 +128,12 @@ export function useTheme() {
     localStorage.setItem("text-size", textSize)
   }, [textSize])
 
-  // Eye comfort mode (lower glare, softer contrast)
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.toggle("eye-comfort", eyeComfort)
-    localStorage.setItem(LS_EYE_COMFORT, eyeComfort ? "1" : "0")
-  }, [eyeComfort])
-
   // App language is fixed to English
   useEffect(() => {
     document.documentElement.setAttribute("lang", "en")
   }, [])
 
   const toggleMode = () => setMode(prev => prev === "light" ? "dark" : "light")
-  const toggleEyeComfort = () => setEyeComfort(prev => !prev)
 
   // Backward-compat aliases
   const theme = mode
@@ -158,6 +146,5 @@ export function useTheme() {
     appFont, setAppFont,
     appZoom, setAppZoom,
     textSize, setTextSize,
-    eyeComfort, setEyeComfort, toggleEyeComfort,
   }
 }

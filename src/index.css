@@ -436,61 +436,61 @@ body {
     color-scheme: light;
 
     /* Surfaces — monochrome */
-  --background:        hsl(0 0% 97%);
-  --foreground:        hsl(0 0% 9%);
+  --background:        hsl(210 25% 98%);
+  --foreground:        hsl(220 20% 12%);
   --card:              hsl(0 0% 100%);
-  --card-foreground:   hsl(0 0% 9%);
-  --card-border:       hsl(0 0% 84%);
+  --card-foreground:   hsl(220 20% 12%);
+  --card-border:       hsl(215 20% 84%);
   --popover:           hsl(0 0% 100%);
-  --popover-foreground: hsl(0 0% 9%);
+  --popover-foreground: hsl(220 20% 12%);
 
   /* Brand — neutral contrast */
-  --primary:           hsl(0 0% 10%);
+  --primary:           hsl(222 47% 14%);
     --primary-foreground: hsl(0 0% 98%);
 
     /* Utility surfaces */
-  --secondary:         hsl(0 0% 92%);
-  --secondary-foreground: hsl(0 0% 20%);
-  --muted:             hsl(0 0% 94%);
-  --muted-foreground:  hsl(0 0% 35%);
-  --accent:            hsl(0 0% 90%);
-  --accent-foreground: hsl(0 0% 20%);
+  --secondary:         hsl(214 22% 93%);
+  --secondary-foreground: hsl(220 18% 24%);
+  --muted:             hsl(214 24% 95%);
+  --muted-foreground:  hsl(220 10% 40%);
+  --accent:            hsl(214 26% 91%);
+  --accent-foreground: hsl(220 20% 20%);
 
     /* Status */
-    --destructive:       hsl(0 0% 22%);
+    --destructive:       hsl(0 72% 42%);
 
     /* Chrome */
-    --border:  hsl(0 0% 80%);
-    --input:   hsl(0 0% 80%);
-    --ring:    hsl(0 0% 16%);
+    --border:  hsl(215 21% 81%);
+    --input:   hsl(215 23% 86%);
+    --ring:    hsl(221 39% 28%);
 
     /* Charts */
-    --chart-1: hsl(0 0% 18%);
-    --chart-2: hsl(0 0% 30%);
-    --chart-3: hsl(0 0% 42%);
-    --chart-4: hsl(0 0% 55%);
-    --chart-5: hsl(0 0% 68%);
+    --chart-1: hsl(222 47% 28%);
+    --chart-2: hsl(202 68% 36%);
+    --chart-3: hsl(162 61% 35%);
+    --chart-4: hsl(27 88% 47%);
+    --chart-5: hsl(335 72% 48%);
 
     /* Elevation helpers */
-    --button-outline: rgba(0, 0, 0, 0.08);
-    --elevate-1:      rgba(0, 0, 0, 0.03);
-    --elevate-2:      rgba(0, 0, 0, 0.06);
-    --shadow-soft: 0 10px 24px -16px rgba(0, 0, 0, 0.22);
-    --shadow-lift: 0 18px 34px -18px rgba(0, 0, 0, 0.34);
+    --button-outline: rgba(20, 28, 45, 0.12);
+    --elevate-1:      rgba(20, 28, 45, 0.04);
+    --elevate-2:      rgba(20, 28, 45, 0.08);
+    --shadow-soft: 0 10px 28px -18px rgba(20, 28, 45, 0.25);
+    --shadow-lift: 0 20px 40px -24px rgba(20, 28, 45, 0.34);
 
     /* Background atmosphere */
-    --bg-glow-1: hsla(0, 0%, 0%, 0.08);
-    --bg-glow-2: hsla(0, 0%, 100%, 0.45);
+    --bg-glow-1: hsla(214, 68%, 44%, 0.10);
+    --bg-glow-2: hsla(190, 55%, 50%, 0.10);
 
     /* Sidebar */
-    --sidebar:                    hsl(0 0% 95%);
-    --sidebar-foreground:         hsl(0 0% 14%);
-    --sidebar-primary:            hsl(0 0% 12%);
+    --sidebar:                    hsl(214 24% 95%);
+    --sidebar-foreground:         hsl(220 20% 16%);
+    --sidebar-primary:            hsl(222 47% 16%);
     --sidebar-primary-foreground: hsl(0 0% 98%);
-    --sidebar-accent:             hsl(0 0% 89%);
-    --sidebar-accent-foreground:  hsl(0 0% 14%);
-    --sidebar-border:             hsl(0 0% 78%);
-    --sidebar-ring:               hsl(0 0% 18%);
+    --sidebar-accent:             hsl(214 24% 89%);
+    --sidebar-accent-foreground:  hsl(220 20% 18%);
+    --sidebar-border:             hsl(214 20% 79%);
+    --sidebar-ring:               hsl(222 41% 28%);
 
     /* Semantic accents */
     --accent-blue:    212 96% 42%;
@@ -511,61 +511,61 @@ body {
 .dark {
     color-scheme: dark;
     /* Surfaces — monochrome */
-  --background:        hsl(0 0% 6%);
-  --foreground:        hsl(0 0% 94%);
-  --card:              hsl(0 0% 8%);
-  --card-foreground:   hsl(0 0% 94%);
-  --card-border:       hsl(0 0% 19%);
-  --popover:           hsl(0 0% 8%);
-  --popover-foreground: hsl(0 0% 94%);
+  --background:        hsl(222 22% 7%);
+  --foreground:        hsl(210 20% 92%);
+  --card:              hsl(222 19% 10%);
+  --card-foreground:   hsl(210 20% 92%);
+  --card-border:       hsl(220 14% 22%);
+  --popover:           hsl(222 19% 10%);
+  --popover-foreground: hsl(210 20% 92%);
 
   /* Brand — inverse neutral */
-  --primary:           hsl(0 0% 92%);
-  --primary-foreground: hsl(0 0% 12%);
+  --primary:           hsl(210 24% 92%);
+  --primary-foreground: hsl(223 26% 14%);
 
     /* Utility surfaces */
-  --secondary:         hsl(0 0% 13%);
-  --secondary-foreground: hsl(0 0% 86%);
-  --muted:             hsl(0 0% 11%);
-  --muted-foreground:  hsl(0 0% 67%);
-  --accent:            hsl(0 0% 16%);
-  --accent-foreground: hsl(0 0% 87%);
+  --secondary:         hsl(222 14% 15%);
+  --secondary-foreground: hsl(210 14% 86%);
+  --muted:             hsl(222 14% 13%);
+  --muted-foreground:  hsl(215 10% 66%);
+  --accent:            hsl(222 14% 18%);
+  --accent-foreground: hsl(210 18% 88%);
 
     /* Status */
-    --destructive:       hsl(0 0% 78%);
+    --destructive:       hsl(0 74% 64%);
 
     /* Chrome */
-    --border:  hsl(0 0% 24%);
-    --input:   hsl(0 0% 14%);
-    --ring:    hsl(0 0% 82%);
+    --border:  hsl(220 12% 24%);
+    --input:   hsl(221 15% 17%);
+    --ring:    hsl(210 30% 78%);
 
     /* Charts */
-    --chart-1: hsl(0 0% 86%);
-    --chart-2: hsl(0 0% 72%);
-    --chart-3: hsl(0 0% 58%);
-    --chart-4: hsl(0 0% 44%);
-    --chart-5: hsl(0 0% 30%);
+    --chart-1: hsl(213 95% 75%);
+    --chart-2: hsl(173 62% 63%);
+    --chart-3: hsl(34 93% 68%);
+    --chart-4: hsl(271 83% 75%);
+    --chart-5: hsl(340 84% 72%);
 
     /* Elevation helpers */
-    --button-outline: rgba(255, 255, 255, 0.08);
-    --elevate-1:      rgba(255, 255, 255, 0.03);
-    --elevate-2:      rgba(255, 255, 255, 0.06);
-    --shadow-soft: 0 10px 28px -16px rgba(2, 8, 23, 0.7);
-    --shadow-lift: 0 18px 40px -20px rgba(2, 8, 23, 0.86);
+    --button-outline: rgba(148, 163, 184, 0.20);
+    --elevate-1:      rgba(148, 163, 184, 0.06);
+    --elevate-2:      rgba(148, 163, 184, 0.10);
+    --shadow-soft: 0 12px 30px -18px rgba(2, 8, 23, 0.74);
+    --shadow-lift: 0 22px 44px -24px rgba(2, 8, 23, 0.88);
 
     /* Background atmosphere */
-    --bg-glow-1: hsla(0, 0%, 100%, 0.06);
-    --bg-glow-2: hsla(0, 0%, 100%, 0.02);
+    --bg-glow-1: hsla(214, 100%, 70%, 0.08);
+    --bg-glow-2: hsla(173, 70%, 55%, 0.05);
 
     /* Sidebar */
-    --sidebar:                    hsl(0 0% 7%);
-    --sidebar-foreground:         hsl(0 0% 90%);
-    --sidebar-primary:            hsl(0 0% 91%);
-    --sidebar-primary-foreground: hsl(0 0% 13%);
-    --sidebar-accent:             hsl(0 0% 16%);
-    --sidebar-accent-foreground:  hsl(0 0% 90%);
-    --sidebar-border:             hsl(0 0% 22%);
-    --sidebar-ring:               hsl(0 0% 82%);
+    --sidebar:                    hsl(223 20% 8%);
+    --sidebar-foreground:         hsl(212 20% 90%);
+    --sidebar-primary:            hsl(210 22% 92%);
+    --sidebar-primary-foreground: hsl(224 22% 14%);
+    --sidebar-accent:             hsl(222 16% 17%);
+    --sidebar-accent-foreground:  hsl(210 18% 90%);
+    --sidebar-border:             hsl(220 14% 23%);
+    --sidebar-ring:               hsl(210 28% 78%);
 
     /* Semantic accents tuned for dark surfaces */
     --accent-blue:    210 100% 72%;
@@ -579,143 +579,6 @@ body {
 
     --switch-thumb: hsl(0 0% 98%);
     --switch-sidebar-on: hsl(var(--accent-emerald));
-}
-
-/* ── Eye Comfort Mode ─────────────────────────────────────── */
-:root.eye-comfort {
-  /* Light mode: softer neutral contrast */
-  --background:        hsl(0 0% 94%);
-  --foreground:        hsl(0 0% 16%);
-  --card:              hsl(0 0% 97%);
-  --card-foreground:   hsl(0 0% 16%);
-  --muted:             hsl(0 0% 90%);
-  --muted-foreground:  hsl(0 0% 40%);
-  --accent:            hsl(0 0% 88%);
-  --accent-foreground: hsl(0 0% 24%);
-  --border:            hsl(0 0% 74%);
-  --input:             hsl(0 0% 74%);
-  --primary:           hsl(0 0% 24%);
-  --ring:              hsl(0 0% 24%);
-  --chart-1:           hsl(0 0% 30%);
-  --chart-2:           hsl(0 0% 42%);
-  --chart-3:           hsl(0 0% 54%);
-  --chart-4:           hsl(0 0% 66%);
-  --chart-5:           hsl(0 0% 76%);
-
-  --button-outline:    rgba(0, 0, 0, 0.05);
-  --elevate-1:         rgba(0, 0, 0, 0.02);
-  --elevate-2:         rgba(0, 0, 0, 0.04);
-  --shadow-soft:       0 8px 22px -18px rgba(15, 23, 42, 0.24);
-  --shadow-lift:       0 12px 24px -20px rgba(15, 23, 42, 0.3);
-  --bg-glow-1:         hsla(0, 0%, 0%, 0.04);
-  --bg-glow-2:         hsla(0, 0%, 100%, 0.2);
-
-  --accent-blue:       211 48% 42%;
-  --accent-emerald:    158 39% 38%;
-  --accent-orange:     24 55% 45%;
-  --accent-violet:     262 40% 52%;
-  --accent-pink:       334 42% 48%;
-  --accent-indigo:     236 37% 52%;
-  --accent-amber:      40 52% 43%;
-  --accent-danger:     0 46% 43%;
-
-  --sidebar:                    hsl(0 0% 92%);
-  --sidebar-foreground:         hsl(0 0% 18%);
-  --sidebar-primary:            hsl(0 0% 20%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent:             hsl(0 0% 86%);
-  --sidebar-accent-foreground:  hsl(0 0% 18%);
-  --sidebar-border:             hsl(0 0% 68%);
-  --sidebar-ring:               hsl(0 0% 20%);
-}
-
-:root.dark.eye-comfort {
-  /* Dark mode: softer neutral contrast */
-  --background:        hsl(0 0% 8%);
-  --foreground:        hsl(0 0% 86%);
-  --card:              hsl(0 0% 11%);
-  --card-foreground:   hsl(0 0% 86%);
-  --muted:             hsl(0 0% 13%);
-  --muted-foreground:  hsl(0 0% 64%);
-  --accent:            hsl(0 0% 17%);
-  --accent-foreground: hsl(0 0% 84%);
-  --border:            hsl(0 0% 25%);
-  --input:             hsl(0 0% 16%);
-  --primary:           hsl(0 0% 82%);
-  --ring:              hsl(0 0% 82%);
-  --chart-1:           hsl(0 0% 78%);
-  --chart-2:           hsl(0 0% 65%);
-  --chart-3:           hsl(0 0% 53%);
-  --chart-4:           hsl(0 0% 41%);
-  --chart-5:           hsl(0 0% 30%);
-
-  --button-outline:    rgba(255, 255, 255, 0.06);
-  --elevate-1:         rgba(255, 255, 255, 0.02);
-  --elevate-2:         rgba(255, 255, 255, 0.04);
-  --shadow-soft:       0 8px 20px -16px rgba(2, 8, 23, 0.56);
-  --shadow-lift:       0 12px 24px -18px rgba(2, 8, 23, 0.65);
-  --bg-glow-1:         hsla(0, 0%, 100%, 0.03);
-  --bg-glow-2:         hsla(0, 0%, 100%, 0.01);
-
-  --accent-blue:       210 62% 66%;
-  --accent-emerald:    154 44% 58%;
-  --accent-orange:     28 58% 64%;
-  --accent-violet:     266 52% 69%;
-  --accent-pink:       333 50% 66%;
-  --accent-indigo:     238 54% 70%;
-  --accent-amber:      44 58% 63%;
-  --accent-danger:     0 60% 66%;
-
-  --sidebar:                    hsl(0 0% 10%);
-  --sidebar-foreground:         hsl(0 0% 85%);
-  --sidebar-primary:            hsl(0 0% 83%);
-  --sidebar-primary-foreground: hsl(0 0% 13%);
-  --sidebar-accent:             hsl(0 0% 18%);
-  --sidebar-accent-foreground:  hsl(0 0% 85%);
-  --sidebar-border:             hsl(0 0% 27%);
-  --sidebar-ring:               hsl(0 0% 83%);
-}
-
-.eye-comfort body {
-  line-height: 1.7;
-  letter-spacing: 0.006em;
-}
-
-.eye-comfort p,
-.eye-comfort li,
-.eye-comfort dd {
-  line-height: 1.72;
-}
-
-.eye-comfort .glass-card,
-.eye-comfort .glass-header {
-  backdrop-filter: blur(8px);
-}
-
-.eye-comfort button,
-.eye-comfort a,
-.eye-comfort input,
-.eye-comfort select,
-.eye-comfort textarea,
-.eye-comfort [role="button"] {
-  transition-duration: 0.24s;
-}
-
-.eye-comfort :focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.35);
-}
-
-.eye-comfort ::selection {
-  background: hsl(var(--primary) / 0.16);
-}
-
-.eye-comfort .loading-text,
-.eye-comfort .loading-text-typewriter,
-.eye-comfort .loading-dots span,
-.eye-comfort .landing-cta::before,
-.eye-comfort .landing-cta-arrow {
-  animation-duration: 2.4s;
 }
 
 
