@@ -195,7 +195,7 @@ export function PlanoVM() {
 
   // Register save handler so App-level Save button persists to DB
   useEffect(() => {
-    registerSaveHandler(async () => {
+    const unregister = registerSaveHandler(async () => {
       const res = await fetch('/api/plano', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -206,6 +206,7 @@ export function PlanoVM() {
         throw new Error(json.error ?? `HTTP ${res.status}`)
       }
     })
+    return unregister
   }, [pages, registerSaveHandler])
 
   // Snapshot pages when edit mode turns ON for instant discard
@@ -556,16 +557,24 @@ export function PlanoVM() {
             {isEditMode && (
               <div className="flex justify-end gap-2">
                 {hasUnsavedChanges && (
-                  <Button
+                  <button
+                    type="button"
                     onClick={saveChanges}
                     disabled={isSaving}
-                    className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                    className={[
+                      "inline-flex items-center gap-2",
+                      "px-5 py-2 text-xs font-bold uppercase tracking-widest",
+                      "border-2 transition-all duration-200 active:scale-95 select-none",
+                      isSaving
+                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-500 cursor-not-allowed"
+                        : "border-foreground bg-foreground text-background hover:bg-transparent hover:text-foreground shadow-[3px_3px_0px_0px] shadow-foreground/30 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]",
+                    ].join(" ")}
                   >
                     {isSaving
-                      ? <Loader2 className="size-4 animate-spin" />
-                      : <Save className="size-4" />}
+                      ? <Loader2 className="size-3.5 animate-spin shrink-0" />
+                      : <Save className="size-3.5 shrink-0" />}
                     {isSaving ? 'Saving...' : 'Save'}
-                  </Button>
+                  </button>
                 )}
               </div>
             )}

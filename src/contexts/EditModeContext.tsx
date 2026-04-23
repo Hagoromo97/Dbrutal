@@ -9,7 +9,7 @@ interface EditModeContextType {
   setIsEditMode: (value: boolean) => void
   setHasUnsavedChanges: (value: boolean) => void
   saveChanges: () => void
-  registerSaveHandler: (handler: () => Promise<void>) => void
+  registerSaveHandler: (handler: () => Promise<void>) => () => void
   discardChanges: () => void
   registerDiscardHandler: (handler: () => void) => void
 }
@@ -20,24 +20,27 @@ export function EditModeProvider({ children }: { children: ReactNode }) {
   const [isEditMode, setIsEditMode] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const saveHandlerRef = useRef<(() => Promise<void>) | null>(null)
+  const saveHandlersRef = useRef<Map<string, () => Promise<void>>>(new Map())
   const discardHandlerRef = useRef<(() => void) | null>(null)
+  const handlerKeyRef = useRef(0)
 
-  const registerSaveHandler = (handler: () => Promise<void>) => {
-    saveHandlerRef.current = handler
-  }
+  const registerSaveHandler = useCallback((handler: () => Promise<void>) => {
+    const key = String(++handlerKeyRef.current)
+    saveHandlersRef.current.set(key, handler)
+    return () => { saveHandlersRef.current.delete(key) }
+  }, [])
 
   const registerDiscardHandler = useCallback((handler: () => void) => {
     discardHandlerRef.current = handler
   }, [])
 
   const saveChanges = async () => {
-    if (saveHandlerRef.current) {
+    const handlers = Array.from(saveHandlersRef.current.values())
+    if (handlers.length > 0) {
       setIsSaving(true)
       try {
-        await saveHandlerRef.current()
+        await Promise.all(handlers.map(h => h()))
         setHasUnsavedChanges(false)
-        // Success toast is shown by the individual save handler
       } catch (e) {
         toast.error("Save failed", {
           description: e instanceof Error ? e.message : "Unknown error. Please try again.",
@@ -88,7 +91,7 @@ export function useEditMode() {
       setIsEditMode: () => {},
       setHasUnsavedChanges: () => {},
       saveChanges: () => {},
-      registerSaveHandler: () => {},
+      registerSaveHandler: () => () => {},
       discardChanges: () => {},
       registerDiscardHandler: () => {},
     }

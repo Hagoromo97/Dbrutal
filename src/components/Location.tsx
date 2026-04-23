@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RowInfoModal } from "@/components/RowInfoModal"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useEditMode } from "@/contexts/EditModeContext"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface DeliveryPoint {
@@ -160,6 +161,7 @@ const DELIVERY_MAP = new Map(DELIVERY_ITEMS.map(d => [d.value, d]))
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export function DeliveryTableDialog() {
+  const { registerSaveHandler, setHasUnsavedChanges } = useEditMode()
   const [routes, setRoutes]   = useState<Route[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState<string | null>(null)
@@ -258,7 +260,7 @@ export function DeliveryTableDialog() {
   const effectiveDelivery = (pt: FlatPoint) =>
     pendingEdits.get(pointKey(pt)) ?? pt.delivery
 
-  const saveChanges = async () => {
+  const saveChanges = useCallback(async () => {
     if (pendingEdits.size === 0 || isSaving) return
     setIsSaving(true)
     setSaveError(null)
@@ -278,12 +280,26 @@ export function DeliveryTableDialog() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       setRoutes(updatedRoutes)
       setPendingEdits(new Map())
+      setHasUnsavedChanges(false)
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : "Failed to save")
     } finally {
       setIsSaving(false)
     }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingEdits, isSaving, routes])
+
+  // Register with global EditMode save
+  useEffect(() => {
+    if (pendingEdits.size === 0) return
+    const unregister = registerSaveHandler(saveChanges)
+    return unregister
+  }, [pendingEdits.size, saveChanges, registerSaveHandler])
+
+  // Notify context when pending edits change
+  useEffect(() => {
+    setHasUnsavedChanges(pendingEdits.size > 0)
+  }, [pendingEdits.size, setHasUnsavedChanges])
 
   // ── Flatten all points + detect duplicates ───────────────────────────────
   const { flat, dupCodeCount, dupNameCount } = useMemo(() => {
@@ -416,20 +432,6 @@ export function DeliveryTableDialog() {
           <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
           Refresh
         </Button>
-        {pendingEdits.size > 0 && (
-          <Button
-            size="sm"
-            variant="default"
-            onClick={saveChanges}
-            disabled={isSaving}
-            className="h-7 gap-1.5 text-xs bg-primary hover:bg-primary/90"
-          >
-            {isSaving
-              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              : <Save className="w-3.5 h-3.5" />}
-            {isSaving ? "Saving…" : `Save (${pendingEdits.size})`}
-          </Button>
-        )}
         {saveError && (
           <span className="flex items-center gap-1 text-xs font-medium text-destructive">
             <AlertCircle className="w-3.5 h-3.5" />{saveError}

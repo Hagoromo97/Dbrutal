@@ -563,11 +563,11 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
 
       {/* ── Page heading ────────────────────────────────────────────────────── */}
       <div className="px-4 pt-4 pb-1 shrink-0">
-        <div className="flex items-center gap-2">
-          <Users className="size-5 text-primary" />
-          <h1 className="text-xl font-bold tracking-tight">Rooster</h1>
+        <div className="mb-1.5 flex items-center gap-2.5 sm:gap-3">
+          <Users className="size-3.5 text-primary" />
+          <h1 className="text-[13px] font-semibold tracking-tight text-foreground">Rooster</h1>
         </div>
-        <p className="text-xs text-muted-foreground mt-0.5">Staff scheduling &amp; shift overview</p>
+        <p className="ml-6 text-[11px] text-muted-foreground/90 sm:ml-7">Staff scheduling &amp; shift overview</p>
       </div>
 
       {/* ── Top bar ─────────────────────────────────────────────────────────── */}

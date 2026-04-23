@@ -1568,6 +1568,7 @@ function AppContent() {
   const { mode } = useTheme()
   const isDark = mode === "dark"
   const isSidebarActive = (isMobile && openMobile) || (!isMobile && open)
+  const { hasUnsavedChanges, isSaving, saveChanges, isEditMode } = useEditMode()
 
   useEffect(() => {
     const syncPinnedCount = () => {
@@ -1798,6 +1799,45 @@ function AppContent() {
           </div>
         </Suspense>
       </main>
+
+      {/* Global floating Save button */}
+      {isEditMode && (hasUnsavedChanges || isSaving) && createPortal(
+        <button
+          type="button"
+          onClick={saveChanges}
+          disabled={isSaving}
+          className={[
+            "fixed z-[999] inline-flex items-center gap-2",
+            "px-5 py-2.5 text-xs font-bold uppercase tracking-widest rounded-lg",
+            "border-2 transition-all duration-200 active:scale-95 select-none",
+            isSaving
+              ? "border-emerald-500 bg-emerald-500/15 text-emerald-500 cursor-not-allowed"
+              : "border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600 hover:border-emerald-600 shadow-[3px_3px_0px_0px] shadow-emerald-800/30 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]",
+          ].join(" ")}
+          style={{
+            right: "max(1.5rem, env(safe-area-inset-right))",
+            bottom: "max(1.5rem, env(safe-area-inset-bottom))",
+          }}
+        >
+          {isSaving
+            ? <svg className="size-3.5 animate-spin shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"/></svg>
+            : <svg className="size-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          }
+          <span>
+            {isSaving ? (
+              <span className="inline-flex items-center gap-0.5">
+                Saving
+                <span className="inline-flex gap-0.5 ml-0.5">
+                  <span className="animate-bounce [animation-delay:0ms]">.</span>
+                  <span className="animate-bounce [animation-delay:150ms]">.</span>
+                  <span className="animate-bounce [animation-delay:300ms]">.</span>
+                </span>
+              </span>
+            ) : "Save Changes"}
+          </span>
+        </button>,
+        document.body
+      )}
 
       {/* Edit Mode controls moved to Settings page */}
     </>

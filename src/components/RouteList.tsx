@@ -2161,7 +2161,8 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
   }, [routes, headerItems, fetchRoutes, currentRouteId, isPlaygroundMode, cardPanels, loadCardChangelog])
 
   useEffect(() => {
-    registerSaveHandler(doSave)
+    const unregister = registerSaveHandler(doSave)
+    return unregister
   }, [doSave, registerSaveHandler])
 
   // Snapshot routes when edit mode turns ON for instant discard
@@ -5249,44 +5250,6 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Floating Save Button */}
-      {typeof document !== 'undefined' && (hasUnsavedChanges || isSaving) && isEditMode && createPortal(
-        <Button
-          onClick={saveChanges}
-          disabled={isSaving}
-          className={
-            `fixed z-[999] shadow-lg hover:shadow-xl transition-all h-12 px-6 gap-2 ` +
-            (isSaving
-              ? 'bg-green-600 hover:bg-green-600 animate-pulse cursor-not-allowed'
-              : 'bg-green-600 hover:bg-green-700')
-          }
-          style={{
-            left: 'max(1rem, calc((100vw - min(1440px, 100vw)) / 2 + 1rem + env(safe-area-inset-left)))',
-            bottom: 'max(1rem, env(safe-area-inset-bottom))',
-            right: 'auto',
-          }}
-          size="lg"
-        >
-          {isSaving ? (
-            <Loader2 className="size-5 animate-spin" />
-          ) : (
-            <Save className="size-5" />
-          )}
-          <span>
-            {isSaving ? (
-              <span className="inline-flex items-center gap-0.5">
-                Saving
-                <span className="inline-flex gap-0.5 ml-0.5">
-                  <span className="animate-bounce [animation-delay:0ms]">.</span>
-                  <span className="animate-bounce [animation-delay:150ms]">.</span>
-                  <span className="animate-bounce [animation-delay:300ms]">.</span>
-                </span>
-              </span>
-            ) : 'Save Changes'}
-          </span>
-        </Button>,
-        document.body
-      )}
 
 
     </div>

@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import type { ReactNode } from "react"
 import {
-  User, Bell, Lock, Globe, Mail, Phone, Save, Shield,
+  User, Bell, Lock, Globe, Mail, Phone, Shield,
   Eye, EyeOff, Check, Type, Copy,
   Navigation, Palette, Database, HardDrive, Clock3, Loader2,
 } from "lucide-react"
@@ -82,7 +82,7 @@ function SectionHeader({ icon, title, description }: { icon: ReactNode; title: s
 // ─── Main export ──────────────────────────────────────────────────────────────
 export function Settings({ section = "profile" }: { section?: SectionId }) {
   const { appFont, setAppFont, eyeComfort, setEyeComfort } = useTheme()
-  const { isEditMode } = useEditMode()
+  const { isEditMode, registerSaveHandler, setHasUnsavedChanges } = useEditMode()
   const active = section
 
   const t = {
@@ -129,19 +129,18 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
   // ImgBB API key
   const [imgbbKey, setImgbbKey] = useState(() => localStorage.getItem(LS_IMGBB_KEY) ?? "")
   const [showImgbbKey, setShowImgbbKey] = useState(false)
-  const [imgbbKeySaved, setImgbbKeySaved] = useState(false)
+  const imgbbOriginalRef = useRef(imgbbKey)
 
   const handleSaveImgbbKey = () => {
     localStorage.setItem(LS_IMGBB_KEY, imgbbKey)
-    setImgbbKeySaved(true)
-    setTimeout(() => setImgbbKeySaved(false), 2000)
+    imgbbOriginalRef.current = imgbbKey
   }
 
   // Map state
   const [mapLat,  setMapLat]  = useState(() => { try { const v = localStorage.getItem(LS_DEFAULT_VIEW); if (v) return String(JSON.parse(v).center[0]) } catch { /**/ } return MAP_FALLBACK.lat })
   const [mapLng,  setMapLng]  = useState(() => { try { const v = localStorage.getItem(LS_DEFAULT_VIEW); if (v) return String(JSON.parse(v).center[1]) } catch { /**/ } return MAP_FALLBACK.lng })
   const [mapZoom, setMapZoom] = useState(() => { try { const v = localStorage.getItem(LS_DEFAULT_VIEW); if (v) return String(JSON.parse(v).zoom)     } catch { /**/ } return MAP_FALLBACK.zoom })
-  const [mapSaved, setMapSaved] = useState(false)
+  const mapOriginalRef = useRef({ lat: mapLat, lng: mapLng, zoom: mapZoom })
 
   // Per-route colors (fetched from API)
   type RouteColorEntry = { id: string; name: string; code: string; color: string }
@@ -186,8 +185,59 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
     const latN = parseFloat(mapLat), lngN = parseFloat(mapLng), zoomN = parseInt(mapZoom, 10)
     if (isNaN(latN) || isNaN(lngN) || isNaN(zoomN)) return
     localStorage.setItem(LS_DEFAULT_VIEW, JSON.stringify({ center: [latN, lngN], zoom: zoomN }))
-    setMapSaved(true); setTimeout(() => setMapSaved(false), 2000)
+    mapOriginalRef.current = { lat: mapLat, lng: mapLng, zoom: mapZoom }
   }
+
+  const mapDirty = useMemo(() => (
+    mapLat !== mapOriginalRef.current.lat ||
+    mapLng !== mapOriginalRef.current.lng ||
+    mapZoom !== mapOriginalRef.current.zoom
+  ), [mapLat, mapLng, mapZoom])
+
+  const imgbbDirty = useMemo(() => imgbbKey !== imgbbOriginalRef.current, [imgbbKey])
+
+  const settingsDirty = useMemo(() => {
+    switch (active) {
+      case "map-defaultview":
+        return mapDirty
+      case "route-colors":
+        return routesListDirty
+      case "security":
+        return imgbbDirty
+      default:
+        return false
+    }
+  }, [active, imgbbDirty, mapDirty, routesListDirty])
+
+  const saveActiveSection = useCallback(async () => {
+    switch (active) {
+      case "map-defaultview":
+        if (mapDirty) handleSaveMap()
+        break
+      case "route-colors":
+        if (routesListDirty) await handleSaveRouteColorsList()
+        break
+      case "security":
+        if (imgbbDirty) handleSaveImgbbKey()
+        break
+      default:
+        break
+    }
+  }, [active, imgbbDirty, mapDirty, routesListDirty, mapLat, mapLng, mapZoom, imgbbKey, routesList])
+
+  useEffect(() => {
+    if (!isEditMode || !settingsDirty) return
+    const unregister = registerSaveHandler(saveActiveSection)
+    return unregister
+  }, [isEditMode, settingsDirty, registerSaveHandler, saveActiveSection])
+
+  useEffect(() => {
+    if (!isEditMode) {
+      setHasUnsavedChanges(false)
+      return
+    }
+    setHasUnsavedChanges(settingsDirty)
+  }, [isEditMode, settingsDirty, setHasUnsavedChanges])
 
   const handleChangePassword = () => {
     if (security.newPassword !== security.confirmPassword) { alert("New passwords do not match!"); return }
@@ -258,11 +308,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   </div>
                 ))}
               </div>
-              {isEditMode && (
-                <div className="flex justify-end">
-                  <Button onClick={() => alert("Profile settings saved!")}><Save className="size-4 mr-2" />Save Profile</Button>
-                </div>
-              )}
+
             </div>
           </div>
         )
@@ -306,11 +352,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
               ))}
             </FieldGroup>
 
-            <div className="flex justify-end mt-5">
-              <Button onClick={() => alert("Notification settings saved!")}>
-                <Save className="size-4 mr-2" />Save Notifications
-              </Button>
-            </div>
+
           </div>
         )
       }
@@ -399,14 +441,10 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   <Input type="number" min={1} max={18} value={mapZoom} onChange={e => setMapZoom(e.target.value)} />
                 </div>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center">
                 <button onClick={() => { setMapLat(MAP_FALLBACK.lat); setMapLng(MAP_FALLBACK.lng); setMapZoom(MAP_FALLBACK.zoom) }}
                   className="text-xs text-muted-foreground underline hover:text-foreground"
                 >Reset to default (3.0695500, 101.5469179)</button>
-                <Button onClick={handleSaveMap} className="gap-2">
-                  {mapSaved ? <Check className="size-4" /> : <Save className="size-4" />}
-                  {mapSaved ? "Saved!" : "Save"}
-                </Button>
               </div>
             </div>
           </div>
@@ -485,7 +523,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   ))}
                 </div>
 
-                <div className="mt-6 flex items-center justify-between">
+                <div className="mt-6 flex items-center">
                   <button
                     onClick={() => {
                       setRoutesList(prev => prev.map((r, i) => ({ ...r, color: DEFAULT_ROUTE_COLORS[i % DEFAULT_ROUTE_COLORS.length] })))
@@ -495,10 +533,6 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   >
                     Reset to default
                   </button>
-                  <Button onClick={handleSaveRouteColorsList} disabled={!routesListDirty}>
-                    <Save className="size-4 mr-2" />
-                    Save Colours
-                  </Button>
                 </div>
               </>
             )}
@@ -613,12 +647,6 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   </button>
                 </div>
               </div>
-              <div className="flex justify-end">
-                <Button onClick={handleSaveImgbbKey} disabled={!imgbbKey} variant={imgbbKeySaved ? "outline" : "default"}>
-                  {imgbbKeySaved ? <Check className="size-4 mr-2 text-green-500" /> : <Save className="size-4 mr-2" />}
-                  {imgbbKeySaved ? "Saved!" : "Save API Key"}
-                </Button>
-              </div>
 
               <Separator />
 
@@ -675,7 +703,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
   }
 
   return (
-    <div className="flex flex-1 flex-col min-h-0 overflow-y-auto p-6 md:p-8 max-w-4xl w-full mx-auto" style={{ paddingBottom: "calc(2.5rem + env(safe-area-inset-bottom))" }}>
+    <div className="relative flex flex-1 flex-col min-h-0 overflow-y-auto p-6 md:p-8 max-w-4xl w-full mx-auto" style={{ paddingBottom: "calc(2.5rem + env(safe-area-inset-bottom))" }}>
       <div className="space-y-8">
         {renderContent()}
       </div>
