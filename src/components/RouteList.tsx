@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react"
-import { createPortal } from "react-dom"
 import { List, Info, Plus, Check, X, Edit2, Trash2, Search, Save, ArrowUp, ArrowDown, Truck, Loader2, Cog, CheckCircle2, MapPin, Route, AlertCircle, History, MapPinned, TableProperties, Shrink, Expand, ChevronUp, ChevronDown, ChevronsUpDown, Filter, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -558,7 +557,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
     cancel: "Cancel",
     clearAll: "Clear All",
   }
-  const { isEditMode, hasUnsavedChanges, isSaving, setHasUnsavedChanges, registerSaveHandler, saveChanges, registerDiscardHandler } = useEditMode()
+  const { isEditMode, setHasUnsavedChanges, registerSaveHandler, registerDiscardHandler } = useEditMode()
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"))
   useEffect(() => {
     const obs = new MutationObserver(() => setIsDark(document.documentElement.classList.contains("dark")))
