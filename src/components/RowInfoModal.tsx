@@ -305,13 +305,13 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
               )
             )}
             <div className="flex-1 min-w-0">
-              <DialogTitle className="truncate text-sm font-bold text-foreground md:text-base md:leading-tight">
+              <DialogTitle className="truncate text-[12px] font-bold text-foreground md:text-[14px] md:leading-tight">
                 {point.name}
               </DialogTitle>
               <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1">
                 <span className="text-xs font-mono text-muted-foreground">{point.code}</span>
                 <span className="text-xs text-muted-foreground/60">•</span>
-                <span className="text-xs text-muted-foreground">{point.delivery}</span>
+                <span className="text-[10px] text-muted-foreground">{point.delivery}</span>
               </div>
             </div>
           </div>
@@ -410,24 +410,18 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                 </button>
               </div>
             ) : (
-              <div className="rounded-xl overflow-hidden border border-border">
+              <div className="rounded-xl overflow-hidden">
                 {drafts && drafts.length > 0 ? (
-                  <table className="w-full border-collapse">
-                    <tbody>
-                      {drafts.map((d, i) => (
-                        <tr key={i} className={i > 0 ? "border-t border-border" : ""}>
-                          <th className="w-[80px] text-[11px] font-medium text-muted-foreground px-2.5 py-2 text-center bg-muted/30">
-                            {d.key}
-                          </th>
-                          <td className="flex-1 text-[10px] font-normal text-foreground px-2.5 py-2 text-center">
-                            {d.value}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <dl className="space-y-1.5">
+                    {drafts.map((d, i) => (
+                      <div key={i} className="grid grid-cols-[84px_1fr] items-start gap-x-2.5 px-2 py-1">
+                        <dt className="text-[11px] font-medium text-muted-foreground text-left">{d.key}</dt>
+                        <dd className="text-[10px] font-normal text-foreground text-left leading-relaxed">{d.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-5">No information added</p>
+                  <p className="text-[12px] text-muted-foreground text-center py-5">No information added</p>
                 )}
               </div>
             )}
@@ -435,7 +429,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
 
           {/* Navigation buttons */}
           {!isEditing && (
-            <div>
+            <div className="mt-2">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Open With</p>
               <div className="flex flex-col gap-1.5">
 

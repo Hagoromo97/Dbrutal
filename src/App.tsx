@@ -1440,15 +1440,15 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                   </button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-60 p-0 overflow-hidden"
+                  className="w-64 p-0 overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-xl backdrop-blur-sm"
                   side="top"
                   align="center"
                   sideOffset={8}
                   collisionPadding={12}
                 >
                   {/* Header */}
-                  <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border bg-muted/30">
-                    <div className="shrink-0 w-8 h-8 flex items-center justify-center overflow-hidden">
+                  <div className="flex items-center gap-2.5 px-4 py-3.5 border-b border-border/60 bg-muted/20">
+                    <div className="shrink-0 w-8 h-8 rounded-lg bg-background/70 flex items-center justify-center overflow-hidden">
                       {imageSrc ? (
                         <img src={imageSrc} alt="" className={imageClass ?? "w-7 h-7 object-contain"} />
                       ) : bootstrapIconClass ? (
@@ -1463,10 +1463,10 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                     </div>
                   </div>
                   {/* Actions */}
-                  <div className="flex divide-x divide-border">
+                  <div className="grid grid-cols-2 gap-2 p-2">
                     <button
                       onClick={() => setConfirmingLink(null)}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+                      className="flex items-center justify-center gap-1.5 rounded-lg border border-border/70 bg-background/70 py-2.5 text-xs font-semibold text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors"
                     >
                       <X className="size-3" />Cancel
                     </button>
@@ -1475,7 +1475,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                         setConfirmingLink(null)
                         window.open(href, '_blank', 'noopener,noreferrer')
                       }}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors"
+                      className="flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 py-2.5 text-xs font-semibold text-primary hover:bg-primary/15 transition-colors"
                     >
                       <ExternalLink className="size-3" />Open
                     </button>
@@ -1488,7 +1488,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
           <Popover open={isRymnetPopoverOpen} onOpenChange={setIsRymnetPopoverOpen}>
             <PopoverTrigger asChild>
               <button className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/40 active:scale-[0.99] transition-all duration-150 group text-left">
-                <div className="shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden transition-transform duration-200 group-hover:scale-[1.07]">
+                <div className="shrink-0 w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center overflow-hidden transition-transform duration-200 group-hover:scale-[1.07]">
                   <img src="/rymnet1.png" alt="Rymnet Apps icon" className="w-9 h-9 object-contain scale-[2.5]" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -1506,11 +1506,11 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
               align="center"
               sideOffset={8}
               collisionPadding={12}
-              className="w-64 p-0 overflow-hidden"
+              className="w-64 p-0 overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-xl backdrop-blur-sm"
             >
               {/* Mini header */}
-              <div className="flex items-center gap-2.5 px-3.5 py-2.5 border-b border-border bg-muted/30">
-                <div className="w-7 h-7 flex items-center justify-center overflow-hidden shrink-0">
+              <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border/60 bg-muted/20">
+                <div className="w-8 h-8 rounded-lg bg-background/70 flex items-center justify-center overflow-hidden shrink-0">
                   <img src="/rymnet1.png" alt="" className="w-7 h-7 object-contain scale-[2.5]" />
                 </div>
                 <div>
@@ -1519,12 +1519,12 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                 </div>
               </div>
               {/* Store links */}
-              <div className="p-1.5 flex flex-col gap-0.5">
+              <div className="p-2 flex flex-col gap-1.5">
                 <a
                   href="https://apps.apple.com/us/app/rymnet-hrms/id6475796139"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-muted/50 transition-colors group"
+                  className="flex items-center gap-3 rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 hover:bg-muted/40 transition-colors group"
                 >
                   <div className="w-8 h-8 flex items-center justify-center shrink-0">
                     <i className="bi bi-apple text-base leading-none text-zinc-400" aria-hidden="true" />
@@ -1539,7 +1539,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                   href="https://play.google.com/store/apps/details?id=com.rnrymnet.prod"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-muted/50 transition-colors group"
+                  className="flex items-center gap-3 rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 hover:bg-muted/40 transition-colors group"
                 >
                   <div className="w-8 h-8 flex items-center justify-center shrink-0">
                     <i className="bi bi-android2 text-base leading-none text-green-500" aria-hidden="true" />

@@ -2944,7 +2944,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                     {cl && !cl.loading && cl.entries.length > 0 && (
                       <button
                         onClick={() => setClearLogConfirm(route.id)}
-                        style={{ borderRadius: 9, fontSize: '0.74rem', fontWeight: 700, padding: '0.45rem 0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', background: 'transparent', color: '#dc2626', border: '1px solid #dc2626', cursor: 'pointer', opacity: 1, width: '100%' }}
+                        style={{ borderRadius: 9, fontSize: '0.74rem', fontWeight: 700, padding: '0.45rem 0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', background: 'none', color: '#dc2626', border: 'none', cursor: 'pointer', opacity: 1, width: '100%' }}
                         title={clearLogText.clearAllEntries}
                       >
                         <Trash2 style={{ width: 11, height: 11, color: '#dc2626' }} /> Clear
@@ -3077,7 +3077,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
 
                     </div>
 
-                    <button onClick={() => { setCardPanels(prev => ({ ...prev, [route.id]: { info: false, edit: false } })); setRouteToDelete(route); setDeleteRouteConfirmOpen(true) }} style={{ borderRadius: 9, fontSize: editLabelFs, fontWeight: 700, padding: '0.55rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'transparent', color: '#dc2626', border: '1px solid #dc2626', cursor: 'pointer', width: '100%', justifyContent: 'center' }}>
+                    <button onClick={() => { setCardPanels(prev => ({ ...prev, [route.id]: { info: false, edit: false } })); setRouteToDelete(route); setDeleteRouteConfirmOpen(true) }} style={{ borderRadius: 9, fontSize: editLabelFs, fontWeight: 700, padding: '0.55rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', color: '#dc2626', border: 'none', cursor: 'pointer', width: '100%', justifyContent: 'center' }}>
                       <Trash2 style={{ width: 13, height: 13 }} /> Delete Route
                     </button>
                   </div>
