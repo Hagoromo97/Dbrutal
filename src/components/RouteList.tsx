@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react"
-import { List, Info, Plus, Check, X, Edit2, Trash2, Search, Save, ArrowUp, ArrowDown, Truck, Loader2, Cog, CheckCircle2, MapPin, Route, AlertCircle, History, MapPinned, TableProperties, Shrink, Expand, ChevronUp, ChevronDown, ChevronsUpDown, Filter, ChevronLeft, ChevronRight } from "lucide-react"
+import { ClipboardList, List, Info, Plus, Check, X, Edit2, Trash2, Search, Save, ArrowUp, ArrowDown, Truck, Loader2, Cog, CheckCircle2, MapPin, Route, AlertCircle, History, MapPinned, TableProperties, Shrink, Expand, ChevronUp, ChevronDown, ChevronsUpDown, Filter, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { RowInfoModal } from "./RowInfoModal"
@@ -601,7 +601,6 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
       return toRouteCombinedFilter(region, nextShift)
     })
   }, [])
-  const [showAllRoutes, setShowAllRoutes] = useState(false)
   const [headerItems, setHeaderItems] = useState<RouteListHeaderItem[]>(loadRouteListHeaderItems)
   const headerSnapshotRef = useRef<RouteListHeaderItem[]>([])
 
@@ -920,11 +919,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
     )
   }, [routes, searchQuery, filterRegion, filterShift])
 
-  // Reset showAllRoutes when search or filter changes
-  useEffect(() => { setShowAllRoutes(false) }, [searchQuery, combinedFilter])
-
-  // Only show first 3 route cards when collapsed
-  const displayedRoutes = showAllRoutes ? filteredRoutes : filteredRoutes.slice(0, 4)
+  const displayedRoutes = filteredRoutes
   const totalCardItems = displayedRoutes.length + ((isEditMode || isPlaygroundMode) ? 1 : 0)
   const cardTrackWidth = totalCardItems > 0 ? (totalCardItems * cardW) + ((totalCardItems - 1) * CAROUSEL_GAP) : 0
   const shouldCenterCardTrack = cardContainerWidth > 0 && cardTrackWidth <= cardContainerWidth
@@ -978,7 +973,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
     setActiveCarouselIndex(0)
     const scroller = cardCarouselRef.current
     if (scroller) scroller.scrollTo({ left: 0, behavior: 'auto' })
-  }, [searchQuery, combinedFilter, showAllRoutes])
+  }, [searchQuery, combinedFilter])
 
   const SEARCH_SUGGESTION_LIMIT = 20
 
@@ -2302,7 +2297,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
         {/* Page header */}
         <div className="mb-6 sm:mb-7">
           <div className="mb-2 flex items-center gap-2.5 sm:gap-3">
-            <List className="size-3.5 shrink-0 text-primary" />
+            <ClipboardList className="size-3.5 shrink-0 text-primary" />
             <h2 className="text-[13px] font-semibold tracking-tight text-foreground">{pageTitle}</h2>
           </div>
           <p className="ml-6 text-[11px] leading-relaxed text-muted-foreground/90 sm:ml-7">
@@ -2526,26 +2521,26 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
         {displayedRoutes.length > 1 && !shouldCenterCardTrack && (
           <div className="mb-4 flex items-center justify-between gap-3">
             <div className="text-[11px] font-medium text-muted-foreground">
-              Card {Math.min(activeCarouselIndex + 1, displayedRoutes.length)} / {displayedRoutes.length}
+              Route {Math.min(activeCarouselIndex + 1, displayedRoutes.length)} / {displayedRoutes.length}
             </div>
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => scrollToCarouselIndex(activeCarouselIndex - 1)}
-                disabled={activeCarouselIndex <= 0}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/60 disabled:opacity-45 disabled:cursor-not-allowed"
-                aria-label="Previous card"
+                onClick={() => scrollToCarouselIndex(0)}
+                className="inline-flex h-9 w-9 items-center justify-center text-foreground/75 transition-colors hover:text-foreground"
+                aria-label="Jump to first card"
+                title="Jump to first card"
               >
-                <ChevronLeft className="size-4" />
+                <ChevronLeft className="size-5" strokeWidth={2.75} />
               </button>
               <button
                 type="button"
-                onClick={() => scrollToCarouselIndex(activeCarouselIndex + 1)}
-                disabled={activeCarouselIndex >= displayedRoutes.length - 1}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/60 disabled:opacity-45 disabled:cursor-not-allowed"
-                aria-label="Next card"
+                onClick={() => scrollToCarouselIndex(displayedRoutes.length - 1)}
+                className="inline-flex h-9 w-9 items-center justify-center text-foreground/75 transition-colors hover:text-foreground"
+                aria-label="Jump to last card"
+                title="Jump to last card"
               >
-                <ChevronRight className="size-4" />
+                <ChevronRight className="size-5" strokeWidth={2.75} />
               </button>
             </div>
           </div>
@@ -3933,30 +3928,6 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
         })}
         </div>
         </div> {/* end card list */}
-        {/* Show more / show less button */}
-        {filteredRoutes.length > 4 && (
-          <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', paddingTop: '0.9rem', paddingBottom: '0.45rem' }}>
-            <button
-              onClick={() => setShowAllRoutes(prev => !prev)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.45rem',
-                fontSize: '0.78rem', fontWeight: 700,
-                color: 'hsl(var(--muted-foreground))',
-                background: 'hsl(var(--muted)/0.6)',
-                border: '1.5px dashed hsl(var(--border))',
-                borderRadius: 10, padding: '0.65rem 1.5rem',
-                cursor: 'pointer', transition: 'background 0.15s, color 0.15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'hsl(var(--muted))'; e.currentTarget.style.color = 'hsl(var(--foreground))' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'hsl(var(--muted)/0.6)'; e.currentTarget.style.color = 'hsl(var(--muted-foreground))' }}
-            >
-              {showAllRoutes
-                ? '↑ Show less'
-                : `+ ${filteredRoutes.length - 4} more Route list — click to show all`}
-            </button>
-          </div>
-        )}
-
         {/* No Results Message */}
         {filteredRoutes.length === 0 && (searchQuery || filterRegion !== "all") && (
           <div className="flex w-full flex-col items-center justify-center py-14 text-center sm:py-18">
