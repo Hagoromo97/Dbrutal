@@ -257,10 +257,11 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
       <Dialog open={open} onOpenChange={(o) => { if (!o) { setPendingUrl(null); setPendingUrlLabel("") } onOpenChange(o) }}>
       <DialogContent
         onInteractOutside={handleDialogInteractOutside}
-        className="flex max-h-[min(77vh,33rem)] w-[91vw] max-w-[20.5rem] flex-col gap-0 overflow-hidden rounded-[22px] border border-border/70 bg-card/70 p-0 shadow-[0_10px_26px_hsl(var(--foreground)/0.08)] backdrop-blur-md md:max-w-[21.5rem]"
+        overlayClassName="bg-black/25 backdrop-blur-[2px]"
+        className="flex max-h-[min(80vh,36rem)] w-[93vw] max-w-[22.5rem] flex-col gap-0 overflow-hidden rounded-[22px] border border-border/80 bg-card/95 p-0 shadow-[0_16px_38px_hsl(var(--foreground)/0.14)] backdrop-blur-md supports-[backdrop-filter]:bg-card/90 dark:shadow-[0_18px_42px_hsl(var(--background)/0.55)] md:max-w-[23.5rem]"
       >
         {/* Header */}
-        <DialogHeader className="shrink-0 border-b border-border px-4 pt-4 pb-3 text-left md:px-5 md:pt-5 md:pb-4">
+        <DialogHeader className="shrink-0 border-b border-border bg-gradient-to-b from-background/75 to-card/35 px-4 pt-4 pb-3 text-left md:px-5 md:pt-5 md:pb-4">
           <div className="flex items-center gap-2.5 md:gap-3">
             {/* Avatar: multi-image gallery / camera-slash placeholder */}
             {isEditMode ? (
@@ -279,7 +280,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                 ) : (
                   <img src={noImageSrc} alt="No image" className="size-full rounded-full object-cover" />
                 )}
-                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-foreground/35 opacity-0 transition-opacity group-hover:opacity-100">
                   <Camera className="size-4 text-white md:size-5" />
                 </div>
               </button>
@@ -292,7 +293,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                   >
                     <img src={avatarImageUrl || avatarImages[0]} alt={point.name} className="size-full rounded-full object-cover" />
                     {avatarImages.length > 1 && (
-                      <span className="absolute -right-0.5 -bottom-0.5 rounded-full bg-black/75 px-1 py-0.5 text-[9px] leading-none text-white md:px-1.5 md:py-1 md:text-[10px]">
+                      <span className="absolute -right-0.5 -bottom-0.5 rounded-full bg-foreground/75 px-1 py-0.5 text-[9px] leading-none text-background md:px-1.5 md:py-1 md:text-[10px]">
                         {avatarImages.length}
                       </span>
                     )}
@@ -318,9 +319,9 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
         </DialogHeader>
 
         {/* Body */}
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden px-4 py-3 md:px-5 md:py-4">
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden bg-background/35 px-4 py-3 md:px-5 md:py-4">
           {/* Information section */}
-          <div>
+          <div className="pt-1">
             <div className="flex items-center justify-between mb-2.5">
               <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">Information</p>
               {isEditMode && !isEditing && (
@@ -395,7 +396,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                     />
                     <button
                       onClick={() => handleRemove(i)}
-                      className="text-red-400 hover:text-red-600 shrink-0"
+                      className="theme-danger shrink-0"
                     >
                       <Trash2 className="size-4" />
                     </button>
@@ -403,14 +404,14 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                 ))}
                 <button
                   onClick={handleAdd}
-                  className="flex items-center gap-1 text-[11px] text-blue-500 hover:text-blue-600 font-medium mt-1"
+                  className="theme-accent-blue mt-1 flex items-center gap-1 text-[11px] font-medium"
                 >
                   <Plus className="size-3.5" />
                   Add field
                 </button>
               </div>
             ) : (
-              <div className="rounded-xl overflow-hidden">
+              <div className="overflow-hidden rounded-xl">
                 {drafts && drafts.length > 0 ? (
                   <dl className="space-y-1.5">
                     {drafts.map((d, i) => (
@@ -429,34 +430,31 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
 
           {/* Navigation buttons */}
           {!isEditing && (
-            <div className="mt-2">
+            <div className="mt-3 pt-1 pb-2">
               <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Open With</p>
               <div className="flex flex-col gap-1.5">
 
                 {/* Google Maps row */}
                 {hasCoords && (
-                  <div className="overflow-hidden rounded-xl border border-border">
+                  <div className="overflow-hidden rounded-xl border border-border/80 bg-background/70 shadow-[inset_0_1px_0_hsl(var(--background)/0.7)]">
                     <div className="transition-transform duration-300 ease-in-out" style={{ display: 'grid', gridTemplateColumns: '100% 100%', transform: pendingUrlLabel === 'Google Maps' ? 'translateX(-100%)' : 'translateX(0)' }}>
-                      <button onClick={() => openUrl(gmapsUrl, "Google Maps")} className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-muted/50 hover:bg-muted transition-all active:scale-[0.98] group">
-                        <img src="/Gmaps.png" alt="Google Maps" className="w-7 h-7 rounded-lg object-cover shrink-0" />
+                      <button onClick={() => openUrl(gmapsUrl, "Google Maps")} className="group flex w-full items-center gap-2 bg-muted/35 px-2.5 py-0.5 transition-all hover:bg-muted/65 active:scale-[0.98]">
+                        <img src="/Gmaps.png" alt="Google Maps" className="h-5 w-5 rounded-md object-cover shrink-0" />
                         <span className="flex-1 text-left text-[11px] font-semibold text-foreground">Google Maps</span>
-                        <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
+                        <ChevronRight className="size-3 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
                       </button>
-                      <div className="relative overflow-hidden bg-muted/50">
+                      <div className="relative overflow-hidden bg-background/80">
                         <div className="absolute inset-y-0 left-0 w-1" style={{ background: 'linear-gradient(to bottom,#4285F4,#34A853)' }} />
-                        <div className="flex items-center gap-2.5 px-3 py-2 pl-5">
+                        <div className="flex items-center gap-2 px-3 py-1 pl-5">
                           <button
                             onClick={() => openUrl(gmapsUrl, "Google Maps")}
                             className="flex-1 min-w-0 flex items-center gap-2.5 text-left"
                           >
-                            <img src="/Gmaps.png" alt="Google Maps" className="w-7 h-7 rounded-lg object-cover shrink-0" />
-                            <div className="min-w-0">
-                              <p className="text-[11px] font-semibold text-foreground leading-tight truncate">Open Google Maps?</p>
-                              <p className="text-[8px] text-muted-foreground mt-0.5">Will leave this app</p>
-                            </div>
+                            <img src="/Gmaps.png" alt="Google Maps" className="h-5 w-5 rounded-md object-cover shrink-0" />
+                            <p className="min-w-0 truncate text-[11px] font-semibold text-foreground leading-tight">Open Google Maps?</p>
                           </button>
                           <div className="flex items-center shrink-0">
-                            <button onClick={confirmOpen} aria-label="Open Google Maps URL" className="h-8 w-8 rounded-full transition-colors active:scale-95 flex items-center justify-center" style={{ color: '#4285F4' }}><ExternalLink className="w-4 h-4" /></button>
+                            <button onClick={confirmOpen} aria-label="Open Google Maps URL" className="theme-accent-blue flex h-6 w-6 items-center justify-center rounded-full transition-colors active:scale-95"><ExternalLink className="h-3 w-3" /></button>
                           </div>
                         </div>
                       </div>
@@ -466,28 +464,25 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
 
                 {/* Waze row */}
                 {hasCoords && (
-                  <div className="overflow-hidden rounded-xl border border-border">
+                  <div className="overflow-hidden rounded-xl border border-border/80 bg-background/70 shadow-[inset_0_1px_0_hsl(var(--background)/0.7)]">
                     <div className="transition-transform duration-300 ease-in-out" style={{ display: 'grid', gridTemplateColumns: '100% 100%', transform: pendingUrlLabel === 'Waze' ? 'translateX(-100%)' : 'translateX(0)' }}>
-                      <button onClick={() => openUrl(wazeUrl, "Waze")} className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-muted/50 hover:bg-muted transition-all active:scale-[0.98] group">
-                        <img src="/waze.png" alt="Waze" className="w-7 h-7 rounded-lg object-cover shrink-0" />
+                      <button onClick={() => openUrl(wazeUrl, "Waze")} className="group flex w-full items-center gap-2 bg-muted/35 px-2.5 py-0.5 transition-all hover:bg-muted/65 active:scale-[0.98]">
+                        <img src="/waze.png" alt="Waze" className="h-5 w-5 rounded-md object-cover shrink-0" />
                         <span className="flex-1 text-left text-[11px] font-semibold text-foreground">Waze</span>
-                        <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
+                        <ChevronRight className="size-3 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
                       </button>
-                      <div className="relative overflow-hidden bg-muted/50">
+                      <div className="relative overflow-hidden bg-background/80">
                         <div className="absolute inset-y-0 left-0 w-1" style={{ background: 'linear-gradient(to bottom,#33CCFF,#05C8F0)' }} />
-                        <div className="flex items-center gap-2.5 px-3 py-2 pl-5">
+                        <div className="flex items-center gap-2 px-3 py-1 pl-5">
                           <button
                             onClick={() => openUrl(wazeUrl, "Waze")}
                             className="flex-1 min-w-0 flex items-center gap-2.5 text-left"
                           >
-                            <img src="/waze.png" alt="Waze" className="w-7 h-7 rounded-lg object-cover shrink-0" />
-                            <div className="min-w-0">
-                              <p className="text-[11px] font-semibold text-foreground leading-tight truncate">Open Waze?</p>
-                              <p className="text-[8px] text-muted-foreground mt-0.5">Will leave this app</p>
-                            </div>
+                            <img src="/waze.png" alt="Waze" className="h-5 w-5 rounded-md object-cover shrink-0" />
+                            <p className="min-w-0 truncate text-[11px] font-semibold text-foreground leading-tight">Open Waze?</p>
                           </button>
                           <div className="flex items-center shrink-0">
-                            <button onClick={confirmOpen} aria-label="Open Waze URL" className="h-8 w-8 rounded-full transition-colors active:scale-95 flex items-center justify-center" style={{ color: '#05C8F0' }}><ExternalLink className="w-4 h-4" /></button>
+                            <button onClick={confirmOpen} aria-label="Open Waze URL" className="theme-accent-blue flex h-6 w-6 items-center justify-center rounded-full transition-colors active:scale-95"><ExternalLink className="h-3 w-3" /></button>
                           </div>
                         </div>
                       </div>
@@ -496,28 +491,25 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                 )}
 
                 {/* FamilyMart row */}
-                <div className="overflow-hidden rounded-xl border border-border">
+                    <div className="overflow-hidden rounded-xl border border-border/80 bg-background/70 shadow-[inset_0_1px_0_hsl(var(--background)/0.7)]">
                   <div className="transition-transform duration-300 ease-in-out" style={{ display: 'grid', gridTemplateColumns: '100% 100%', transform: pendingUrlLabel === 'FamilyMart' ? 'translateX(-100%)' : 'translateX(0)' }}>
-                      <button onClick={() => openUrl(familyMartUrl, "FamilyMart")} className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-muted/50 hover:bg-muted transition-all active:scale-[0.98] group">
-                      <img src="/FamilyMart.png" alt="FamilyMart" className="w-7 h-7 rounded-lg object-cover shrink-0" />
+                      <button onClick={() => openUrl(familyMartUrl, "FamilyMart")} className="group flex w-full items-center gap-2 bg-muted/35 px-2.5 py-0.5 transition-all hover:bg-muted/65 active:scale-[0.98]">
+                      <img src="/FamilyMart.png" alt="FamilyMart" className="h-5 w-5 rounded-md object-cover shrink-0" />
                       <span className="flex-1 text-left text-[11px] font-semibold text-foreground">FamilyMart</span>
-                      <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
+                      <ChevronRight className="size-3 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
                     </button>
-                    <div className="relative overflow-hidden bg-muted/50">
+                    <div className="relative overflow-hidden bg-background/80">
                       <div className="absolute inset-y-0 left-0 w-1" style={{ background: 'linear-gradient(to bottom,#007140,#00A651)' }} />
-                        <div className="flex items-center gap-2.5 px-3 py-2 pl-5">
+                        <div className="flex items-center gap-2 px-3 py-1 pl-5">
                         <button
                           onClick={() => openUrl(familyMartUrl, "FamilyMart")}
                           className="flex-1 min-w-0 flex items-center gap-2.5 text-left"
                         >
-                          <img src="/FamilyMart.png" alt="FamilyMart" className="w-7 h-7 rounded-lg object-cover shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-[11px] font-semibold text-foreground leading-tight truncate">Open FamilyMart?</p>
-                            <p className="text-[8px] text-muted-foreground mt-0.5">Will leave this app</p>
-                          </div>
+                          <img src="/FamilyMart.png" alt="FamilyMart" className="h-5 w-5 rounded-md object-cover shrink-0" />
+                          <p className="min-w-0 truncate text-[11px] font-semibold text-foreground leading-tight">Open FamilyMart?</p>
                         </button>
                         <div className="flex items-center shrink-0">
-                          <button onClick={confirmOpen} aria-label="Open FamilyMart URL" className="h-8 w-8 rounded-full transition-colors active:scale-95 flex items-center justify-center" style={{ color: '#007140' }}><ExternalLink className="w-4 h-4" /></button>
+                          <button onClick={confirmOpen} aria-label="Open FamilyMart URL" className="theme-accent-emerald flex h-6 w-6 items-center justify-center rounded-full transition-colors active:scale-95"><ExternalLink className="h-3 w-3" /></button>
                         </div>
                       </div>
                     </div>
@@ -526,28 +518,25 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
 
                 {/* QR Code row — view mode, slides like other rows */}
                 {!isEditMode && qrCodeDestinationUrl && (
-                  <div className="overflow-hidden rounded-xl border border-border">
+                  <div className="overflow-hidden rounded-xl border border-border/80 bg-background/70 shadow-[inset_0_1px_0_hsl(var(--background)/0.7)]">
                     <div className="transition-transform duration-300 ease-in-out" style={{ display: 'grid', gridTemplateColumns: '100% 100%', transform: pendingUrlLabel === 'QR Code' ? 'translateX(-100%)' : 'translateX(0)' }}>
-                      <button onClick={() => openUrl(qrCodeDestinationUrl, "QR Code")} className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-muted/50 hover:bg-muted transition-all active:scale-[0.98] group">
-                        <QrCode className="w-7 h-7 text-orange-500 shrink-0 p-1" />
+                      <button onClick={() => openUrl(qrCodeDestinationUrl, "QR Code")} className="group flex w-full items-center gap-2 bg-muted/35 px-2.5 py-0.5 transition-all hover:bg-muted/65 active:scale-[0.98]">
+                        <QrCode className="h-5 w-5 text-orange-500 shrink-0 p-1" />
                         <span className="flex-1 text-left text-[11px] font-semibold text-foreground">QR Code</span>
-                        <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
+                        <ChevronRight className="size-3 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
                       </button>
-                      <div className="relative overflow-hidden bg-muted/50">
+                      <div className="relative overflow-hidden bg-background/80">
                         <div className="absolute inset-y-0 left-0 w-1" style={{ background: 'linear-gradient(to bottom,#f97316,#ea580c)' }} />
-                        <div className="flex items-center gap-2.5 px-3 py-2 pl-5">
+                        <div className="flex items-center gap-2 px-3 py-1 pl-5">
                           <button
                             onClick={() => openUrl(qrCodeDestinationUrl, "QR Code")}
                             className="flex-1 min-w-0 flex items-center gap-2.5 text-left"
                           >
-                            <QrCode className="w-7 h-7 text-orange-500 shrink-0 p-1" />
-                            <div className="min-w-0">
-                              <p className="text-[11px] font-semibold text-foreground leading-tight truncate">Open QR Code?</p>
-                              <p className="text-[8px] text-muted-foreground mt-0.5">Will leave this app</p>
-                            </div>
+                            <QrCode className="h-5 w-5 text-orange-500 shrink-0 p-1" />
+                            <p className="min-w-0 truncate text-[11px] font-semibold text-foreground leading-tight">Open QR Code?</p>
                           </button>
                           <div className="flex items-center shrink-0">
-                            <button onClick={confirmOpen} aria-label="Open QR Code URL" className="h-8 w-8 rounded-full transition-colors active:scale-95 flex items-center justify-center" style={{ color: '#f97316' }}><ExternalLink className="w-4 h-4" /></button>
+                            <button onClick={confirmOpen} aria-label="Open QR Code URL" className="theme-accent-orange flex h-6 w-6 items-center justify-center rounded-full transition-colors active:scale-95"><ExternalLink className="h-3 w-3" /></button>
                           </div>
                         </div>
                       </div>
@@ -559,10 +548,10 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                 {isEditMode && (
                   <button
                     onClick={() => { setQrDecodeStatus("idle"); setShowQRDialog(true) }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border border-border bg-muted/50 hover:bg-muted transition-all active:scale-[0.98] group"
+                    className="group flex w-full items-center gap-2 rounded-xl border border-border/80 bg-background/70 px-2.5 py-1.5 transition-all hover:bg-muted/45 active:scale-[0.98]"
                   >
-                    <div className="relative w-7 h-7 flex items-center justify-center shrink-0">
-                      <QrCode className="w-4 h-4 text-orange-500" />
+                    <div className="relative flex h-6 w-6 shrink-0 items-center justify-center">
+                      <QrCode className="h-3.5 w-3.5 text-orange-500" />
                       <span className="absolute -top-1 -right-1 bg-background rounded-full p-0.5 shadow-sm border border-border/40">
                         {qrCodeImageUrl ? <Pencil className="w-2.5 h-2.5" /> : <Plus className="w-2.5 h-2.5" />}
                       </span>
@@ -570,7 +559,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                     <span className="flex-1 text-left text-[11px] font-semibold text-foreground">
                       {qrCodeImageUrl ? "Edit QR Code" : "Add QR Code"}
                     </span>
-                    <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
+                    <ChevronRight className="size-3.5 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
                   </button>
                 )}
 
@@ -811,8 +800,8 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
               {/* Header */}
               <DialogHeader className="px-5 pt-5 pb-4 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
-                    <QrCode className="w-5 h-5 text-orange-500" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                    <QrCode className="theme-accent-orange w-5 h-5" />
                   </div>
                   <div>
                     <DialogTitle className="text-base font-bold leading-tight">
@@ -835,7 +824,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                     {qrCodeImageUrl && (
                       <div className="relative flex justify-center p-3 bg-muted/40 rounded-2xl border border-border">
                         <img src={qrCodeImageUrl} alt="QR Code"
-                          className="w-40 h-40 object-contain rounded-lg bg-white shadow-sm"
+                          className="h-40 w-40 rounded-lg bg-background object-contain shadow-sm"
                         />
                         <button
                           onClick={() => { setQrCodeImageUrl(""); setQrDecodeStatus("idle"); if (fileInputRef.current) fileInputRef.current.value = "" }}
@@ -898,17 +887,17 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                           )}
                         </div>
                         {qrDecodeStatus === "decoding" && (
-                          <div className="flex items-center gap-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2">
+                          <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-xs text-primary">
                             <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />Scanning QR code…
                           </div>
                         )}
                         {qrDecodeStatus === "decoded" && (
-                          <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-lg px-3 py-2">
+                          <div className="flex items-center gap-2 rounded-lg bg-[hsl(var(--accent-emerald)/0.12)] px-3 py-2 text-xs text-[hsl(var(--accent-emerald))]">
                             <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />QR decoded — destination URL auto-filled.
                           </div>
                         )}
                         {qrDecodeStatus === "failed" && (
-                          <div className="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2">
+                          <div className="flex items-center gap-2 rounded-lg bg-[hsl(var(--accent-amber)/0.14)] px-3 py-2 text-xs text-[hsl(var(--accent-amber))]">
                             <AlertCircle className="w-3.5 h-3.5 shrink-0" />QR code could not be read. Please enter the destination URL manually.
                           </div>
                         )}
@@ -921,7 +910,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                       <div className="flex items-center justify-between">
                         <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Destination URL</label>
                         {qrDecodeStatus === "decoded" && (
-                          <span className="text-[10px] text-green-600 dark:text-green-400 font-semibold bg-green-50 dark:bg-green-900/30 px-1.5 py-0.5 rounded-md">Auto-filled ✓</span>
+                          <span className="rounded-md bg-[hsl(var(--accent-emerald)/0.12)] px-1.5 py-0.5 text-[10px] font-semibold text-[hsl(var(--accent-emerald))]">Auto-filled ✓</span>
                         )}
                       </div>
                       <Input value={qrCodeDestinationUrl} onChange={e => setQrCodeDestinationUrl(e.target.value)}
@@ -936,7 +925,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                     {qrCodeImageUrl && (
                       <div className="flex justify-center p-3 bg-muted/40 rounded-2xl border border-border">
                         <img src={qrCodeImageUrl} alt="QR Code"
-                          className="w-44 h-44 object-contain rounded-lg bg-white shadow-sm"
+                          className="h-44 w-44 rounded-lg bg-background object-contain shadow-sm"
                         />
                       </div>
                     )}
@@ -983,20 +972,20 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
           {/* QR Scan result modal removed — integrated into main QR dialog */}
         </div>
 
-        <DialogFooter className="shrink-0 border-t border-border bg-background px-4 py-3 sm:space-x-0">
+        <DialogFooter className="shrink-0 border-t border-border bg-muted/15 px-4 py-3 sm:space-x-0">
           {isEditMode ? (
             isEditing ? (
               <div className="flex w-full items-center justify-between">
                 <button
                   onClick={handleCancel}
-                  className="text-xs font-medium text-red-600 transition-colors hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                  className="theme-danger text-xs font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 {hasChanges && (
                   <button
                     onClick={handleSave}
-                    className="text-xs font-semibold text-green-600 transition-colors hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                    className="theme-accent-emerald text-xs font-semibold transition-opacity hover:opacity-80"
                   >
                     Save
                   </button>
@@ -1004,7 +993,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
               </div>
             ) : (
               <button
-                className="ml-auto text-xs font-medium text-red-600 transition-colors hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                className="theme-danger ml-auto text-xs font-medium transition-colors"
                 onClick={() => onOpenChange(false)}
               >
                 Close
@@ -1013,7 +1002,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
           ) : (
             <div className="flex w-full items-center justify-end">
               <button
-                className="text-xs font-medium text-red-600 transition-colors hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                className="theme-danger text-xs font-medium transition-colors"
                 onClick={() => onOpenChange(false)}
               >
                 Close

@@ -92,12 +92,12 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-start sm:justify-center min-h-[calc(100%-3rem)] px-5 sm:px-8 pt-8 pb-16 sm:py-16">
+      <div className="relative z-10 flex flex-col items-center justify-start sm:justify-center min-h-[calc(100%-3rem)] px-5 sm:px-8 pt-10 pb-20 sm:py-20">
         {/* Hero Section */}
-        <div className="w-full max-w-3xl mx-auto text-center space-y-8">
+        <div className="w-full max-w-3xl mx-auto text-center space-y-6 sm:space-y-8">
           {/* Main Title */}
           <h1
-            className={`mx-auto max-w-[14ch] px-2 text-[clamp(1.25rem,6.4vw,2rem)] sm:text-[1.35rem] lg:text-[1.7rem] font-bold tracking-tight break-words [text-wrap:balance] text-foreground transition-all duration-700 ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
+            className={`mx-auto max-w-[14ch] px-2 text-[clamp(1.35rem,6.8vw,2.15rem)] sm:text-[1.5rem] lg:text-[1.85rem] font-bold tracking-tight break-words [text-wrap:balance] text-foreground transition-all duration-700 ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
             style={{ transitionDelay: visible ? "100ms" : "0ms" }}
           >
             Data Brutal
@@ -105,7 +105,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
 
           {/* Description */}
           <p
-            className={`text-base sm:text-lg max-w-2xl mx-auto leading-relaxed text-muted-foreground transition-all duration-700 ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
+            className={`text-sm sm:text-base max-w-md mx-auto leading-relaxed text-muted-foreground transition-all duration-700 ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
             style={{ transitionDelay: visible ? "150ms" : "0ms" }}
           >
             Streamline your delivery routes, track locations, and manage operations with a single powerful tool.
@@ -123,7 +123,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
 
           {/* Features Grid */}
           <div
-            className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-16 transition-all duration-700 ${
+            className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-10 sm:mt-14 transition-all duration-700 ${
               visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
             }`}
             style={{ transitionDelay: visible ? "250ms" : "0ms" }}
@@ -131,15 +131,15 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
             {FEATURES.map(({ icon: Icon, title, description, color }) => (
               <div
                 key={title}
-                className="group relative p-5 rounded-2xl border border-border/80 bg-card/70 hover:bg-card/95 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 cursor-default"
+                className="group relative p-4 sm:p-5 rounded-2xl border border-border/70 bg-card/70 hover:bg-card/95 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-[1.03] cursor-default"
               >
-                <div className="mb-2.5 flex items-center gap-2.5">
-                  <div className={color}>
-                    <Icon className="size-5" />
+                <div className="mb-3 flex items-center gap-2.5">
+                  <div className={`${color} rounded-lg bg-foreground/5 p-1.5`}>
+                    <Icon className="size-4" />
                   </div>
                   <h3 className="text-sm font-semibold text-left leading-none text-foreground">{title}</h3>
                 </div>
-                <p className="text-xs font-medium text-left mt-1.5 leading-relaxed text-muted-foreground">{description}</p>
+                <p className="text-xs text-left leading-relaxed text-muted-foreground">{description}</p>
               </div>
             ))}
           </div>

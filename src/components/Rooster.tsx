@@ -562,16 +562,16 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
     <div className="flex flex-col flex-1 min-h-0">
 
       {/* ── Page heading ────────────────────────────────────────────────────── */}
-      <div className="px-4 pt-4 pb-1 shrink-0">
-        <div className="mb-1.5 flex items-center gap-2.5 sm:gap-3">
+      <div className="px-4 sm:px-5 lg:px-6 pt-4 sm:pt-5 pb-2 shrink-0">
+        <div className="mb-2 flex items-center gap-2.5 sm:gap-3">
           <Users className="size-3.5 text-primary" />
           <h1 className="text-[13px] font-semibold tracking-tight text-foreground">Rooster</h1>
         </div>
-        <p className="ml-6 text-[11px] text-muted-foreground/90 sm:ml-7">Staff scheduling &amp; shift overview</p>
+        <p className="ml-6 text-[11px] leading-relaxed text-muted-foreground/90 sm:ml-7">Staff scheduling &amp; shift overview</p>
       </div>
 
       {/* ── Top bar ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border shrink-0 bg-card/80 backdrop-blur-sm">
+      <div className="flex items-center gap-2.5 px-4 sm:px-5 lg:px-6 py-3 border-b border-border shrink-0 bg-card/80 backdrop-blur-sm">
         <div className="flex items-center gap-1 shrink-0">
           <button onClick={() => navigate(-1)} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
             <ChevronLeft className="size-3.5" />
@@ -615,7 +615,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
         </div>
       </div>
 
-      <div className="px-4 py-2 border-b border-border/70 bg-background/70">
+      <div className="px-4 sm:px-5 lg:px-6 py-3 border-b border-border/70 bg-background/70">
         <div className="flex items-center gap-2">
           <div className="relative w-full max-w-2xl">
             <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/60" />
@@ -623,7 +623,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
               value={historyQuery}
               onChange={(event) => setHistoryQuery(event.target.value)}
               placeholder="Search history: staff, route, code, date (YYYY-MM-DD)"
-              className="h-10 pl-9 pr-16 text-xs sm:text-sm"
+              className="h-10 sm:h-11 pl-9 pr-16 text-xs sm:text-sm"
             />
             {historyQuery.trim() && (
               <button
@@ -655,9 +655,9 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
         </div>
 
         {historyQuery.trim() && (
-          <div className="mt-2 max-h-56 overflow-auto rounded-lg border border-border bg-card/80">
+          <div className="mt-3 max-h-56 overflow-auto rounded-lg border border-border bg-card/80">
             {historyResults.length === 0 ? (
-              <p className="px-3 py-2.5 text-[11px] text-muted-foreground">No history match found.</p>
+              <p className="px-3 py-3 text-[11px] text-muted-foreground">No history match found.</p>
             ) : (
               historyResults.map((shift) => {
                 const resource = resourceById.get(shift.resourceId)
@@ -666,7 +666,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                   <button
                     key={shift.id}
                     type="button"
-                    className="flex w-full items-center justify-between gap-2 border-b border-border/60 px-3 py-2 text-left last:border-b-0 hover:bg-muted/40"
+                    className="flex w-full items-center justify-between gap-3 border-b border-border/60 px-3 py-2.5 text-left last:border-b-0 hover:bg-muted/40"
                     onClick={() => setCurrentDate(new Date(`${shift.date}T12:00:00`))}
                   >
                     <div className="min-w-0">
@@ -692,7 +692,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
       {/* ── Grid ─────────────────────────────────────────────────────────────── */}
       <div className="flex-1 min-h-0 overflow-auto">
         {resources.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-4 h-full text-muted-foreground py-20">
+          <div className="flex flex-col items-center justify-center gap-5 h-full text-muted-foreground py-20">
             <div className="w-16 h-16 rounded-2xl bg-muted/60 flex items-center justify-center">
               <Users className="size-7 opacity-30" />
             </div>
@@ -703,7 +703,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
             {isEditMode && (
               <button
                 onClick={openAddResource}
-                className="flex items-center gap-1.5 h-8 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+                className="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shadow-sm"
               >
                 <Plus className="size-3.5" />Add Staff
               </button>
@@ -719,7 +719,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
             </colgroup>
             <thead>
               <tr>
-                <th className="sticky top-0 left-0 z-30 bg-card border-b border-r border-border px-2.5 py-2.5 text-center" style={{ width: `${staffColWidth}px`, minWidth: `${staffColWidth}px` }}>
+                <th className="sticky top-0 left-0 z-30 bg-card border-b border-r border-border px-2.5 py-3 text-center" style={{ width: `${staffColWidth}px`, minWidth: `${staffColWidth}px` }}>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center justify-center gap-1.5">
                     <Users className="size-3" />Staff
                   </span>
@@ -730,7 +730,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                   return (
                     <th
                       key={toDateKey(date)}
-                      className={`sticky top-0 z-20 border-b border-r border-border text-center py-2 px-1.5 font-normal ${
+                      className={`sticky top-0 z-20 border-b border-r border-border text-center py-2.5 px-1.5 font-normal ${
                         isToday ? "bg-primary/[0.06]" : "bg-card"
                       }`}
                       style={{ width: `${dayColWidth}px`, minWidth: `${dayColWidth}px` }}
@@ -763,7 +763,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                   <tr key={resource.id} className={ri % 2 !== 0 ? "bg-muted/[0.03]" : ""}>
 
                     {/* ── Staff cell ── */}
-                    <td className="sticky left-0 z-10 bg-card border-b border-r border-border p-2.5 align-top">
+                    <td className="sticky left-0 z-10 bg-card border-b border-r border-border p-3 align-top">
                       <div className="flex flex-col items-center text-center">
                           <p className="text-[11px] font-bold text-foreground leading-tight whitespace-nowrap">{resource.name}</p>
                           {resource.role && (
@@ -777,7 +777,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                           </span>
                       </div>
                       {isEditMode && (
-                        <div className="flex items-center gap-0.5 mt-2">
+                        <div className="flex items-center gap-0.5 mt-2.5">
                           <button
                             onClick={e => { e.stopPropagation(); openEditResource(resource) }}
                             className="h-5 px-1.5 flex items-center gap-1 rounded border-0 bg-transparent text-[9px] font-medium text-red-600 hover:bg-transparent hover:text-red-700 transition-colors"
@@ -814,13 +814,13 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                       return (
                         <td
                           key={dateKey}
-                          className={`border-b border-r border-border p-1 transition-colors ${
+                          className={`border-b border-r border-border p-1.5 transition-colors ${
                             isToday ? "bg-primary/[0.02]" : ""
                           } ${isEditMode ? "align-middle cursor-pointer hover:bg-muted/25 text-center" : "align-top"}`}
                           style={{ width: `${dayColWidth}px`, minWidth: `${dayColWidth}px`, minHeight: "72px" }}
                           onClick={() => { if (isEditMode) openAddShift(resource.id, dateKey) }}
                         >
-                          <div className={`flex flex-col gap-1 ${isEditMode ? "items-center" : ""}`}>
+                          <div className={`flex flex-col gap-1.5 ${isEditMode ? "items-center" : ""}`}>
                             {orderedDayShifts.map(shift => (
                               <ShiftBlock
                                 key={shift.id}

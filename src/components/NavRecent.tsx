@@ -20,7 +20,7 @@ interface RecentPageOption {
 }
 
 const LS_KEY = "fcalendar_recent_pages"
-const LIMIT = 3
+const LIMIT = 1
 
 const PAGE_OPTIONS: Record<RecentPageId, RecentPageOption> = {
   "route-list": { id: "route-list", icon: ClipboardList, label: "Route List", iconClass: "theme-accent-violet" },

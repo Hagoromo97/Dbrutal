@@ -636,8 +636,8 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
 
   return (
     <div
-      className="flex flex-col gap-5 px-4 pb-4 pt-6 md:px-6 md:pb-6 md:pt-8 max-w-2xl mx-auto w-full"
-      style={{ paddingBottom: "calc(2.5rem + env(safe-area-inset-bottom))" }}
+      className="flex flex-col gap-7 px-4 pb-4 pt-7 md:px-6 md:pb-6 md:pt-10 max-w-2xl mx-auto w-full"
+      style={{ paddingBottom: "calc(3rem + env(safe-area-inset-bottom))" }}
     >
       {toolPopoverBackdrop}
       {quickPickerModal}
@@ -645,7 +645,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
       {/* ── Pinned Routes ─────────────────────────────────────── */}
       {pinnedRoutes.length > 0 && (
         <div>
-          <div className="mb-2.5 flex items-center justify-between gap-2 px-0.5">
+          <div className="mb-3 flex items-center justify-between gap-2 px-0.5">
             <div className="flex items-center gap-2">
               <p className="text-xs font-semibold text-foreground uppercase tracking-wider">{homeText.pinnedRoutes}</p>
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
@@ -660,7 +660,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
             </button>
           </div>
 
-          <div className="mb-2.5 flex items-center gap-2 px-0.5">
+          <div className="mb-3 flex items-center gap-2 px-0.5">
             <span className="rounded-md border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">AM {pinnedAM}</span>
             <span className="rounded-md border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">PM {pinnedPM}</span>
           </div>
@@ -673,18 +673,18 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
               return (
                 <div
                   key={r.id}
-                  className="group w-full flex items-center justify-between gap-3 rounded-xl p-3.5 text-left border border-border bg-card hover:bg-muted/40 hover:border-border/80 transition-all duration-150"
+                  className="group w-full flex items-center justify-between gap-2.5 rounded-xl p-3 text-left border border-border/70 bg-card shadow-sm hover:bg-muted/40 hover:border-border transition-all duration-150"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     {isKL
-                      ? <img src="/kl-flag.png" className="shrink-0 object-cover rounded shadow-sm ring-1 ring-black/10 dark:ring-white/10" style={{ width: 32, height: 20 }} alt="KL" />
+                      ? <img src="/kl-flag.png" className="shrink-0 object-cover rounded shadow-sm ring-1 ring-black/10 dark:ring-white/10" style={{ width: 28, height: 17 }} alt="KL" />
                       : isSel
-                      ? <img src="/selangor-flag.png" className="shrink-0 object-cover rounded shadow-sm ring-1 ring-black/10 dark:ring-white/10" style={{ width: 32, height: 20 }} alt="Selangor" />
-                      : <div className="shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
-                        <Pin className="size-3.5 text-primary" />
+                      ? <img src="/selangor-flag.png" className="shrink-0 object-cover rounded shadow-sm ring-1 ring-black/10 dark:ring-white/10" style={{ width: 28, height: 17 }} alt="Selangor" />
+                      : <div className="shrink-0 w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                        <Pin className="size-3 text-primary" />
                         </div>
                     }
-                    <p className="text-sm font-semibold text-foreground tracking-tight leading-snug truncate">{routeTitle}</p>
+                    <p className="text-xs font-semibold text-foreground tracking-tight leading-snug truncate">{routeTitle}</p>
                   </div>
 
                   <button
@@ -1208,7 +1208,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
 
       {/* ── Quick Actions ─────────────────────────────────────── */}
       <div>
-        <div className="mb-2.5 flex items-center justify-between gap-2 px-0.5">
+        <div className="mb-3 flex items-center justify-between gap-2 px-0.5">
           <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Quick Access</p>
           <span className="rounded-md border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
             {quickAccess.length}/{QUICK_ACCESS_LIMIT}
@@ -1259,7 +1259,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
       {/* ── Color Guide Table ─────────────────────────────────── */}
       {showColorGuide && (
         <div className={archiveState.colorGuide ? "opacity-60" : undefined}>
-          <div className="mb-2.5 flex items-center justify-between gap-2 px-0.5">
+          <div className="mb-3 flex items-center justify-between gap-2 px-0.5">
             <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Colour Guide</p>
             {isEditMode && (
               <button
@@ -1467,15 +1467,15 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                   </button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-64 p-0 overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-xl backdrop-blur-sm"
+                  className="w-60 p-0 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-xl backdrop-blur-sm"
                   side="top"
                   align="center"
                   sideOffset={8}
                   collisionPadding={12}
                 >
                   {/* Header */}
-                  <div className="flex items-center gap-2.5 px-4 py-3.5 border-b border-border/60 bg-muted/20">
-                    <div className="shrink-0 w-8 h-8 rounded-lg bg-background/70 flex items-center justify-center overflow-hidden">
+                  <div className="flex items-center gap-2.5 px-3.5 py-3 border-b border-border/50 bg-gradient-to-b from-muted/40 to-muted/10">
+                    <div className="shrink-0 w-8 h-8 rounded-xl bg-background border border-border/60 flex items-center justify-center overflow-hidden shadow-sm">
                       {imageSrc ? (
                         <img src={imageSrc} alt="" className={imageClass ?? "w-7 h-7 object-contain"} />
                       ) : bootstrapIconClass ? (
@@ -1486,14 +1486,14 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-foreground leading-tight truncate">{label}</p>
-                      <p className="text-[10px] text-muted-foreground leading-tight">Opens in browser</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">Opens in browser</p>
                     </div>
                   </div>
                   {/* Actions */}
-                  <div className="grid grid-cols-2 gap-2 p-2">
+                  <div className="grid grid-cols-2 gap-2 p-2.5">
                     <button
                       onClick={() => setConfirmingLink(null)}
-                      className="flex items-center justify-center gap-1.5 rounded-lg border border-border/70 bg-background/70 py-2.5 text-xs font-semibold text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors"
+                      className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background py-2.5 text-xs font-semibold text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
                     >
                       <X className="size-3" />Cancel
                     </button>
@@ -1502,7 +1502,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                         setConfirmingLink(null)
                         window.open(href, '_blank', 'noopener,noreferrer')
                       }}
-                      className="flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 py-2.5 text-xs font-semibold text-primary hover:bg-primary/15 transition-colors"
+                      className="flex items-center justify-center gap-1.5 rounded-xl bg-primary py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
                     >
                       <ExternalLink className="size-3" />Open
                     </button>

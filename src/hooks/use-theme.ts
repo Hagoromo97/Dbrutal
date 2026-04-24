@@ -4,7 +4,7 @@ export type ColorMode = "light" | "dark"
 
 /** meta theme-color backgrounds */
 const META_BG: Record<ColorMode, string> = {
-  light: "#f6f6f6",
+  light: "#f1f4f7",
   dark:  "#0b0b0b",
 }
 

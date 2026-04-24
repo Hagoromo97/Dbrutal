@@ -2297,19 +2297,19 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
         />
       )}
       {/* Route List */}
-      <div className="relative z-20 isolate mx-auto min-h-full max-w-[1440px] px-4 py-4 sm:px-5 sm:py-5 lg:px-8 lg:py-6" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
+      <div className="relative z-20 isolate mx-auto min-h-full max-w-[1440px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
         <div className="pointer-events-none absolute inset-0 -z-10" />
         {/* Page header */}
-        <div className="mb-5 sm:mb-6">
-          <div className="mb-1.5 flex items-center gap-2.5 sm:gap-3">
+        <div className="mb-6 sm:mb-7">
+          <div className="mb-2 flex items-center gap-2.5 sm:gap-3">
             <List className="size-3.5 shrink-0 text-primary" />
             <h2 className="text-[13px] font-semibold tracking-tight text-foreground">{pageTitle}</h2>
           </div>
-          <p className="ml-6 text-[11px] text-muted-foreground/90 sm:ml-7">
+          <p className="ml-6 text-[11px] leading-relaxed text-muted-foreground/90 sm:ml-7">
             Manage route planning, stops, and delivery updates in one place.
           </p>
-          <div className="mt-2 flex flex-wrap items-center gap-2 sm:mt-3">
-          <div className="relative z-30 min-w-0 flex-1 sm:flex-none sm:w-[320px] lg:w-[380px]">
+          <div className="mt-3 flex flex-wrap items-center gap-2.5 sm:mt-4">
+          <div className="relative z-30 min-w-0 flex-1 sm:flex-none sm:w-[340px] lg:w-[400px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/50 pointer-events-none" />
             <input
               type="text"
@@ -2323,7 +2323,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                 }
                 setTimeout(() => setSearchFocused(false), 120)
               }}
-              className={`w-full h-11 pl-11 pr-10 bg-background border rounded-lg text-[12px] md:text-[12px] text-foreground font-[inherit] placeholder:text-muted-foreground/50 outline-none transition-all duration-200 ${
+              className={`w-full h-11 sm:h-12 pl-11 pr-10 bg-background border rounded-lg text-[12px] md:text-[12px] text-foreground font-[inherit] placeholder:text-muted-foreground/50 outline-none transition-all duration-200 ${
                 searchQuery.trim()
                   ? "border-primary/50 ring-2 ring-primary/20"
                   : "border-input focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
@@ -2340,7 +2340,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
 
             {searchFocused && searchSuggestions.length > 0 && (
               <div
-                className="absolute z-40 mt-2 w-full rounded-xl border border-border bg-background shadow-lg overflow-hidden max-h-[220px] overflow-y-auto overscroll-contain"
+                className="absolute z-40 mt-2.5 w-full rounded-xl border border-border bg-background shadow-lg overflow-hidden max-h-[220px] overflow-y-auto overscroll-contain"
                 style={{ WebkitOverflowScrolling: 'touch' }}
                 onMouseDown={() => {
                   isInteractingWithSearchSuggestions.current = true
@@ -2362,7 +2362,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                   <button
                     key={route.id}
                     type="button"
-                    className="w-full text-left px-3 py-2.5 hover:bg-muted/60 transition-colors"
+                    className="w-full text-left px-3 py-3 hover:bg-muted/60 transition-colors"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       isInteractingWithSearchSuggestions.current = false
@@ -2383,7 +2383,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
             type="button"
             onClick={() => setFilterModalOpen(true)}
             className={cn(
-              "relative flex items-center gap-1.5 h-9 px-3 rounded-lg border text-xs font-medium transition-colors shrink-0",
+              "relative flex items-center gap-1.5 h-10 px-3.5 rounded-lg border text-xs font-medium transition-colors shrink-0",
               combinedFilter !== 'all'
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-input bg-background text-muted-foreground hover:text-foreground hover:bg-muted/40'
@@ -2406,7 +2406,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                 setSearchQuery("")
                 setCombinedFilter('all')
               }}
-              className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-input bg-background text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/40 animate-in fade-in zoom-in-95 shrink-0"
+              className="flex items-center gap-1.5 h-10 px-3.5 rounded-lg border border-input bg-background text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/40 animate-in fade-in zoom-in-95 shrink-0"
             >
               <X className="size-3.5" />
               Reset
@@ -2415,16 +2415,16 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
           </div>
 
           <Dialog open={filterModalOpen} onOpenChange={setFilterModalOpen}>
-            <DialogContent className="sm:max-w-[380px]">
+            <DialogContent className="sm:max-w-[400px]">
               <DialogHeader>
                 <DialogTitle>Filter Routes</DialogTitle>
               </DialogHeader>
 
-              <div className="mt-1 flex items-center gap-2 rounded-lg border border-border/60 bg-muted/20 p-1">
+              <div className="mt-2 flex items-center gap-2 rounded-lg border border-border/60 bg-muted/20 p-1.5">
                 <button
                   type="button"
                   onClick={() => setFilterModalTab('shift')}
-                  className={`flex-1 rounded-md px-3 py-2 text-xs font-semibold transition-colors ${
+                  className={`flex-1 rounded-md px-3 py-2.5 text-xs font-semibold transition-colors ${
                     filterModalTab === 'shift'
                       ? 'bg-background text-foreground shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'
@@ -2435,7 +2435,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                 <button
                   type="button"
                   onClick={() => setFilterModalTab('region')}
-                  className={`flex-1 rounded-md px-3 py-2 text-xs font-semibold transition-colors ${
+                  className={`flex-1 rounded-md px-3 py-2.5 text-xs font-semibold transition-colors ${
                     filterModalTab === 'region'
                       ? 'bg-background text-foreground shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'
@@ -2446,7 +2446,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
               </div>
 
               {filterModalTab === 'shift' ? (
-                <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="mt-3.5 grid grid-cols-3 gap-2.5">
                   {([
                     { value: 'all', label: 'All' },
                     { value: 'AM', label: 'AM' },
@@ -2458,7 +2458,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                         key={opt.value}
                         type="button"
                         onClick={() => setShiftFilter(opt.value)}
-                        className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                        className={`rounded-lg border px-3 py-2.5 text-xs font-semibold transition-colors ${
                           active
                             ? 'border-primary/45 bg-primary/10 text-primary'
                             : 'border-border/70 bg-background text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -2470,7 +2470,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                   })}
                 </div>
               ) : (
-                <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="mt-3.5 grid grid-cols-3 gap-2.5">
                   {([
                     { value: 'all', label: 'All' },
                     { value: 'KL', label: 'KL' },
@@ -2482,7 +2482,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                         key={opt.value}
                         type="button"
                         onClick={() => setRegionFilter(opt.value)}
-                        className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                        className={`rounded-lg border px-3 py-2.5 text-xs font-semibold transition-colors ${
                           active
                             ? 'border-primary/45 bg-primary/10 text-primary'
                             : 'border-border/70 bg-background text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -2495,7 +2495,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                 </div>
               )}
 
-              <div className="mt-4 flex items-center justify-between">
+              <div className="mt-5 flex items-center justify-between">
                 <p className="text-[11px] text-muted-foreground">Current: {filterRegion} . {filterShift}</p>
                 <div className="flex items-center gap-2">
                   <Button
@@ -2524,7 +2524,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
         {/* ── Card list (carousel) ── */}
         <div ref={cardContainerRef} style={{ width: '100%' }}>
         {displayedRoutes.length > 1 && !shouldCenterCardTrack && (
-          <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="mb-4 flex items-center justify-between gap-3">
             <div className="text-[11px] font-medium text-muted-foreground">
               Card {Math.min(activeCarouselIndex + 1, displayedRoutes.length)} / {displayedRoutes.length}
             </div>
@@ -2533,7 +2533,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                 type="button"
                 onClick={() => scrollToCarouselIndex(activeCarouselIndex - 1)}
                 disabled={activeCarouselIndex <= 0}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/60 disabled:opacity-45 disabled:cursor-not-allowed"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/60 disabled:opacity-45 disabled:cursor-not-allowed"
                 aria-label="Previous card"
               >
                 <ChevronLeft className="size-4" />
@@ -2542,7 +2542,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                 type="button"
                 onClick={() => scrollToCarouselIndex(activeCarouselIndex + 1)}
                 disabled={activeCarouselIndex >= displayedRoutes.length - 1}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/60 disabled:opacity-45 disabled:cursor-not-allowed"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/60 disabled:opacity-45 disabled:cursor-not-allowed"
                 aria-label="Next card"
               >
                 <ChevronRight className="size-4" />
@@ -2561,7 +2561,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
             alignItems: 'start',
             scrollSnapType: 'x mandatory',
             WebkitOverflowScrolling: 'touch',
-            paddingBottom: '0.35rem',
+            paddingBottom: '0.6rem',
             scrollbarWidth: 'thin',
           }}
         >
@@ -3935,7 +3935,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
         </div> {/* end card list */}
         {/* Show more / show less button */}
         {filteredRoutes.length > 4 && (
-          <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', paddingTop: '0.5rem', paddingBottom: '0.25rem' }}>
+          <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', paddingTop: '0.9rem', paddingBottom: '0.45rem' }}>
             <button
               onClick={() => setShowAllRoutes(prev => !prev)}
               style={{
@@ -3944,7 +3944,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                 color: 'hsl(var(--muted-foreground))',
                 background: 'hsl(var(--muted)/0.6)',
                 border: '1.5px dashed hsl(var(--border))',
-                borderRadius: 10, padding: '0.55rem 1.4rem',
+                borderRadius: 10, padding: '0.65rem 1.5rem',
                 cursor: 'pointer', transition: 'background 0.15s, color 0.15s',
               }}
               onMouseEnter={e => { e.currentTarget.style.background = 'hsl(var(--muted))'; e.currentTarget.style.color = 'hsl(var(--foreground))' }}
@@ -3959,15 +3959,15 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
 
         {/* No Results Message */}
         {filteredRoutes.length === 0 && (searchQuery || filterRegion !== "all") && (
-          <div className="flex w-full flex-col items-center justify-center py-12 text-center sm:py-16">
-            <div className="relative mb-6">
+          <div className="flex w-full flex-col items-center justify-center py-14 text-center sm:py-18">
+            <div className="relative mb-7">
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 flex items-center justify-center">
                 <Search className="size-10 text-muted-foreground/50" />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent blur-xl" />
             </div>
-            <h3 className="text-xl font-bold mb-2 text-foreground">No routes found</h3>
-            <p className="text-sm text-muted-foreground max-w-md">
+            <h3 className="text-xl font-bold mb-2.5 text-foreground">No routes found</h3>
+            <p className="max-w-md px-2 text-sm leading-relaxed text-muted-foreground">
               {searchQuery
                 ? `No routes match "${searchQuery}".`
                 : `No routes found in ${filterRegion === "KL" ? "Kuala Lumpur" : "Selangor"}.`}{" "}
@@ -3976,7 +3976,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
             {filterRegion !== "all" && (
               <button
                 onClick={() => setCombinedFilter('all')}
-                className="mt-3 text-xs text-primary hover:underline"
+                className="mt-4 text-xs text-primary hover:underline"
               >
                 Clear filter
               </button>
