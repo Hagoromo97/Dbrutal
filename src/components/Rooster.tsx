@@ -623,13 +623,13 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
               value={historyQuery}
               onChange={(event) => setHistoryQuery(event.target.value)}
               placeholder="Search history: staff, route, code, date (YYYY-MM-DD)"
-              className="h-10 sm:h-11 pl-9 pr-16 text-xs sm:text-sm"
+              className="h-10 sm:h-11 pl-9 pr-24 text-xs sm:text-sm"
             />
             {historyQuery.trim() && (
               <button
                 type="button"
                 onClick={() => setHistoryQuery("")}
-                className="absolute right-8 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-600 transition-colors"
+                className="absolute right-11 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-red-500 transition-colors hover:bg-red-500/10 hover:text-red-600"
                 title="Clear search"
                 aria-label="Clear search"
               >
@@ -638,7 +638,8 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
             )}
             <label
               title="Pick a date"
-              className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-blue-500 hover:text-blue-600 transition-colors"
+              className="absolute right-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-blue-500 transition-colors hover:bg-blue-500/10 hover:text-blue-600"
+              aria-label="Pick a date"
             >
               <CalendarDays className="w-5 h-5" />
               <input
@@ -789,52 +790,148 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                     </td>
 
                     {/* ── Day cells ── */}
-                    {colDates.map(date => {
-                      const dateKey = toDateKey(date)
-                      const dayShifts = rowShifts.filter(s => s.date === dateKey)
-                      const orderedDayShifts = [...dayShifts].sort((a, b) => {
-                        const aPeriod = routes.find(r => r.name === a.title)?.shift?.toUpperCase()
-                        const bPeriod = routes.find(r => r.name === b.title)?.shift?.toUpperCase()
+                    {isEditMode ? (
+                      colDates.map(date => {
+                        const dateKey = toDateKey(date)
+                        const dayShifts = rowShifts.filter(s => s.date === dateKey)
+                        const orderedDayShifts = [...dayShifts].sort((a, b) => {
+                          const aPeriod = routes.find(r => r.name === a.title)?.shift?.toUpperCase()
+                          const bPeriod = routes.find(r => r.name === b.title)?.shift?.toUpperCase()
 
-                        const periodRank = (period?: string) => {
-                          if (period === "AM") return 0
-                          if (period === "PM") return 1
-                          return 2
+                          const periodRank = (period?: string) => {
+                            if (period === "AM") return 0
+                            if (period === "PM") return 1
+                            return 2
+                          }
+
+                          const rankDiff = periodRank(aPeriod) - periodRank(bPeriod)
+                          if (rankDiff !== 0) return rankDiff
+
+                          const startDiff = a.startHour - b.startHour
+                          if (startDiff !== 0) return startDiff
+
+                          return a.title.localeCompare(b.title)
+                        })
+                        const isToday = isSameDay(date, today)
+                        return (
+                          <td
+                            key={dateKey}
+                            className={`border-b border-r border-border p-1.5 transition-colors ${
+                              isToday ? "bg-primary/[0.02]" : ""
+                            } align-middle cursor-pointer hover:bg-muted/25 text-center`}
+                            style={{ width: `${dayColWidth}px`, minWidth: `${dayColWidth}px`, minHeight: "72px" }}
+                            onClick={() => openAddShift(resource.id, dateKey)}
+                          >
+                            <div className="flex flex-col items-center gap-1.5">
+                              {orderedDayShifts.map(shift => (
+                                <ShiftBlock
+                                  key={shift.id}
+                                  shift={shift}
+                                  shiftType={routes.find(r => r.name === shift.title)?.shift ?? ""}
+                                  routeColor={routeEffectiveColorMap.get(shift.title)}
+                                  isEditMode={isEditMode}
+                                  onEdit={() => openEditShift(shift)}
+                                />
+                              ))}
+                            </div>
+                          </td>
+                        )
+                      })
+                    ) : (
+                      (() => {
+                        const sortDayShifts = (list: Shift[]) =>
+                          [...list].sort((a, b) => {
+                            const aPeriod = routes.find(r => r.name === a.title)?.shift?.toUpperCase()
+                            const bPeriod = routes.find(r => r.name === b.title)?.shift?.toUpperCase()
+
+                            const periodRank = (period?: string) => {
+                              if (period === "AM") return 0
+                              if (period === "PM") return 1
+                              return 2
+                            }
+
+                            const rankDiff = periodRank(aPeriod) - periodRank(bPeriod)
+                            if (rankDiff !== 0) return rankDiff
+
+                            const startDiff = a.startHour - b.startHour
+                            if (startDiff !== 0) return startDiff
+
+                            return a.title.localeCompare(b.title)
+                          })
+
+                        const descriptors: Array<{ start: number; span: number; orderedShifts: Shift[] }> = []
+                        let start = 0
+
+                        while (start < colDates.length) {
+                          const dateKey = toDateKey(colDates[start])
+                          const orderedShifts = sortDayShifts(rowShifts.filter(s => s.date === dateKey))
+                          let span = 1
+
+                          if (orderedShifts.length === 1) {
+                            const base = orderedShifts[0]
+                            const baseColor = routeEffectiveColorMap.get(base.title) || base.color
+
+                            while (start + span < colDates.length) {
+                              const nextDateKey = toDateKey(colDates[start + span])
+                              const nextShifts = sortDayShifts(rowShifts.filter(s => s.date === nextDateKey))
+                              if (nextShifts.length !== 1) break
+
+                              const next = nextShifts[0]
+                              const nextColor = routeEffectiveColorMap.get(next.title) || next.color
+                              const sameShift =
+                                next.title === base.title &&
+                                next.startHour === base.startHour &&
+                                next.endHour === base.endHour &&
+                                nextColor === baseColor
+
+                              if (!sameShift) break
+                              span += 1
+                            }
+                          }
+
+                          descriptors.push({ start, span, orderedShifts })
+                          start += span
                         }
 
-                        const rankDiff = periodRank(aPeriod) - periodRank(bPeriod)
-                        if (rankDiff !== 0) return rankDiff
+                        return descriptors.map(({ start: startIndex, span, orderedShifts }) => {
+                          const date = colDates[startIndex]
+                          const dateKey = toDateKey(date)
+                          const isTodaySpan = colDates
+                            .slice(startIndex, startIndex + span)
+                            .some(d => isSameDay(d, today))
+                          const mergedShift = orderedShifts.length === 1 ? orderedShifts[0] : null
 
-                        const startDiff = a.startHour - b.startHour
-                        if (startDiff !== 0) return startDiff
-
-                        return a.title.localeCompare(b.title)
-                      })
-                      const isToday = isSameDay(date, today)
-                      return (
-                        <td
-                          key={dateKey}
-                          className={`border-b border-r border-border p-1.5 transition-colors ${
-                            isToday ? "bg-primary/[0.02]" : ""
-                          } ${isEditMode ? "align-middle cursor-pointer hover:bg-muted/25 text-center" : "align-top"}`}
-                          style={{ width: `${dayColWidth}px`, minWidth: `${dayColWidth}px`, minHeight: "72px" }}
-                          onClick={() => { if (isEditMode) openAddShift(resource.id, dateKey) }}
-                        >
-                          <div className={`flex flex-col gap-1.5 ${isEditMode ? "items-center" : ""}`}>
-                            {orderedDayShifts.map(shift => (
-                              <ShiftBlock
-                                key={shift.id}
-                                shift={shift}
-                                shiftType={routes.find(r => r.name === shift.title)?.shift ?? ""}
-                                routeColor={routeEffectiveColorMap.get(shift.title)}
-                                isEditMode={isEditMode}
-                                onEdit={() => openEditShift(shift)}
-                              />
-                            ))}
-                          </div>
-                        </td>
-                      )
-                    })}
+                          return (
+                            <td
+                              key={dateKey}
+                              colSpan={span}
+                              className={`border-b border-r border-border p-1.5 align-top transition-colors ${
+                                isTodaySpan ? "bg-primary/[0.02]" : ""
+                              }`}
+                              style={{ minHeight: "72px" }}
+                            >
+                              <div className="flex flex-col gap-1.5">
+                                {orderedShifts.map(shift => (
+                                  <ShiftBlock
+                                    key={shift.id}
+                                    shift={shift}
+                                    shiftType={routes.find(r => r.name === shift.title)?.shift ?? ""}
+                                    routeColor={routeEffectiveColorMap.get(shift.title)}
+                                    isEditMode={isEditMode}
+                                    onEdit={() => openEditShift(shift)}
+                                  />
+                                ))}
+                                {mergedShift && span > 1 && (
+                                  <div className="px-1 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground/80">
+                                    {span} days merged
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          )
+                        })
+                      })()
+                    )}
                   </tr>
                 )
               })}

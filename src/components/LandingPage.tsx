@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import { ArrowRight, CalendarDays, MapPin, Package, Layers, Users, Sun, Moon } from "lucide-react"
 import { useTheme } from "@/hooks/use-theme"
+import { Button } from "@/components/ui/button"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 const FEATURES = [
   {
@@ -77,9 +79,11 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
 
       {/* Theme toggle */}
       <div className="relative z-10 flex justify-end px-5 sm:px-8 pt-5">
-        <button
+        <Button
           onClick={toggleMode}
           aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          size="sm"
+          variant="ghost"
           className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 active:scale-[0.94] ${
             isDark
               ? "bg-[hsl(var(--secondary)/0.7)] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--secondary)/0.9)] hover:text-[hsl(var(--foreground))]"
@@ -88,7 +92,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
         >
           {isDark ? <Sun className="size-3.5 text-amber-400" /> : <Moon className="size-3.5 text-indigo-400" />}
           {isDark ? "Light" : "Dark"}
-        </button>
+        </Button>
       </div>
 
       {/* Content */}
@@ -112,14 +116,15 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
           </p>
 
           {/* CTA Button */}
-          <button
+          <Button
             onClick={handleEnter}
-            className={`landing-cta group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm border border-border/90 bg-card/85 text-foreground hover:bg-card hover:border-ring/60 shadow-sm ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
+            variant="outline"
+            className={`landing-cta group relative inline-flex items-center gap-2 border-border/90 bg-card/85 text-foreground hover:bg-card hover:border-ring/60 shadow-sm ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
             style={{ transitionDelay: visible ? "200ms" : "0ms" }}
           >
             <span>Get Started</span>
             <ArrowRight className="landing-cta-arrow size-4" />
-          </button>
+          </Button>
 
           {/* Features Grid */}
           <div
@@ -129,18 +134,20 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
             style={{ transitionDelay: visible ? "250ms" : "0ms" }}
           >
             {FEATURES.map(({ icon: Icon, title, description, color }) => (
-              <div
+              <Card
                 key={title}
-                className="group relative p-4 sm:p-5 rounded-2xl border border-border/70 bg-card/70 hover:bg-card/95 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-[1.03] cursor-default"
+                className="group relative cursor-default gap-0 rounded-2xl border-border/70 bg-card/70 py-4 sm:py-5 hover:scale-[1.03] hover:bg-card/95 hover:shadow-md transition-all duration-300"
               >
-                <div className="mb-3 flex items-center gap-2.5">
-                  <div className={`${color} rounded-lg bg-foreground/5 p-1.5`}>
+                <CardHeader className="mb-3 px-4 sm:px-5">
+                  <CardTitle className="flex items-center gap-2.5 text-sm leading-none text-foreground">
+                    <span className={`${color} rounded-lg bg-foreground/5 p-1.5`}>
                     <Icon className="size-4" />
-                  </div>
-                  <h3 className="text-sm font-semibold text-left leading-none text-foreground">{title}</h3>
-                </div>
-                <p className="text-xs text-left leading-relaxed text-muted-foreground">{description}</p>
-              </div>
+                    </span>
+                    <span>{title}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardDescription className="px-4 text-left text-xs leading-relaxed sm:px-5">{description}</CardDescription>
+              </Card>
             ))}
           </div>
         </div>

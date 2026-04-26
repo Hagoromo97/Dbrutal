@@ -104,7 +104,7 @@ export function NavRecent({
                 onClick={() => onNavigate?.(id)}
               >
                 <option.icon className={`size-[14px] ${option.iconClass ?? "text-muted-foreground"}`} />
-                <span>{option.label}</span>
+                <span className="text-xs">{option.label}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           )

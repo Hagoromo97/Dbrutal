@@ -113,11 +113,12 @@ export function NavMain({
                         display: "grid",
                         gridTemplateRows: isOpen ? "1fr" : "0fr",
                         transition:
-                          "grid-template-rows 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)",
+                          "grid-template-rows 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)",
+                        opacity: isOpen ? 1 : 0,
                       }}
                     >
                       <div className="overflow-hidden">
-                        <SidebarMenuSub className={!isOpen ? "pointer-events-none" : undefined}>
+                        <SidebarMenuSub className={`transition-all duration-300 ${!isOpen ? "pointer-events-none opacity-0" : "opacity-100"}`}>
                           {item.items?.map((subItem) => (
                             <SidebarMenuSubItem key={subItem.title}>
                               <SidebarMenuSubButton

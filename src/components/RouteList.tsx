@@ -2560,7 +2560,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
             scrollbarWidth: 'thin',
           }}
         >
-        {(isEditMode || isPlaygroundMode) && (
+        {(isEditMode || isPlaygroundMode) && displayedRoutes.length > 0 && (
           <div
             key="add-route-card"
             style={{ display: 'flex', justifyContent: 'center', minWidth: cardW, maxWidth: cardW, scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
@@ -3959,6 +3959,29 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
           <div className="mx-auto mt-6 max-w-md rounded-2xl border border-dashed border-border bg-card/40 px-6 py-8 text-center">
             <h3 className="text-lg font-semibold text-foreground">No custom card route yet</h3>
             <p className="mt-2 text-sm text-muted-foreground">Create a card route first, then add locations from existing Location records.</p>
+            <button
+              onClick={() => setAddRouteDialogOpen(true)}
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="size-4" />
+              Create Card Route
+            </button>
+          </div>
+        )}
+
+        {!isPlaygroundMode && filteredRoutes.length === 0 && !searchQuery && filterRegion === "all" && filterShift === "all" && (
+          <div className="mx-auto mt-6 max-w-md rounded-2xl border border-dashed border-border bg-card/40 px-6 py-8 text-center">
+            <h3 className="text-lg font-semibold text-foreground">No routes yet</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Start by creating your first delivery route.</p>
+            {isEditMode && (
+              <button
+                onClick={() => setAddRouteDialogOpen(true)}
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                <Plus className="size-4" />
+                Create Route
+              </button>
+            )}
           </div>
         )}
 
