@@ -149,7 +149,7 @@ export function AppSidebar({
   }), [sidebarBackground])
 
   const sidebarOverlayStyle = React.useMemo<React.CSSProperties>(() => ({
-    backgroundColor: mode === "dark" ? "rgba(18, 18, 18, 0.88)" : "rgba(250, 250, 250, 0.78)",
+    backgroundColor: mode === "dark" ? "rgba(18, 18, 18, 0.84)" : "rgba(250, 250, 250, 0.74)",
   }), [mode])
 
   const text = {
