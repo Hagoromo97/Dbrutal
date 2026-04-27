@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Download, X, Smartphone } from "lucide-react"
+import { Download, Share, X, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -13,12 +13,30 @@ export function PWAInstallPrompt() {
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
   const [installing, setInstalling] = useState(false)
+  const [showIOSGuide, setShowIOSGuide] = useState(false)
 
   useEffect(() => {
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      ((window.navigator as Navigator & { standalone?: boolean }).standalone ?? false)
+
     // Don't show if already installed (running as standalone)
-    if (window.matchMedia("(display-mode: standalone)").matches) return
-    // Don't show if user dismissed this session
-    if (sessionStorage.getItem("pwa-prompt-dismissed")) return
+    if (isStandalone) return
+
+    // Don't show if user dismissed before
+    if (localStorage.getItem("pwa-prompt-dismissed")) return
+
+    const userAgent = window.navigator.userAgent.toLowerCase()
+    const isIOS =
+      /iphone|ipad|ipod/.test(userAgent) ||
+      (window.navigator.platform === "MacIntel" && window.navigator.maxTouchPoints > 1)
+    const isSafari =
+      /safari/.test(userAgent) && !/crios|fxios|edgios|opr|chrome|android/.test(userAgent)
+
+    if (isIOS && isSafari) {
+      setShowIOSGuide(true)
+      setTimeout(() => setVisible(true), 2000)
+    }
 
     const handler = (e: Event) => {
       e.preventDefault()
@@ -26,8 +44,19 @@ export function PWAInstallPrompt() {
       // Small delay so it doesn't show immediately on load
       setTimeout(() => setVisible(true), 2500)
     }
+
+    const installedHandler = () => {
+      setVisible(false)
+      setDeferredPrompt(null)
+      setShowIOSGuide(false)
+    }
+
     window.addEventListener("beforeinstallprompt", handler)
-    return () => window.removeEventListener("beforeinstallprompt", handler)
+    window.addEventListener("appinstalled", installedHandler)
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler)
+      window.removeEventListener("appinstalled", installedHandler)
+    }
   }, [])
 
   const handleInstall = async () => {
@@ -47,11 +76,14 @@ export function PWAInstallPrompt() {
 
   const handleDismiss = () => {
     setDismissed(true)
-    sessionStorage.setItem("pwa-prompt-dismissed", "1")
+    localStorage.setItem("pwa-prompt-dismissed", "1")
     setTimeout(() => setVisible(false), 300)
   }
 
-  if (!deferredPrompt && !visible) return null
+  const canUseBrowserPrompt = deferredPrompt !== null
+  const showingIOSGuide = showIOSGuide && !canUseBrowserPrompt
+
+  if (!visible || (!canUseBrowserPrompt && !showingIOSGuide)) return null
 
   return (
     <div
@@ -72,9 +104,15 @@ export function PWAInstallPrompt() {
           {/* Text */}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-foreground leading-tight">Install Dbrutals</p>
-            <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
-              Add to home screen for faster access and offline support.
-            </p>
+            {showingIOSGuide ? (
+              <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                On iPhone/iPad, tap <Share className="inline-block w-3.5 h-3.5 -mt-0.5" /> then choose Add to Home Screen.
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                Add to home screen for faster access and offline support.
+              </p>
+            )}
           </div>
 
           {/* Dismiss */}
@@ -87,23 +125,35 @@ export function PWAInstallPrompt() {
         </div>
 
         <div className="flex gap-2 mt-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex-1 h-9 text-xs"
-            onClick={handleDismiss}
-          >
-            Not now
-          </Button>
-          <Button
-            size="sm"
-            className="flex-1 h-9 text-xs bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
-            onClick={handleInstall}
-            disabled={installing}
-          >
-            <Download className="w-3.5 h-3.5" />
-            {installing ? "Installing…" : "Install App"}
-          </Button>
+          {showingIOSGuide ? (
+            <Button
+              size="sm"
+              className="flex-1 h-9 text-xs bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={handleDismiss}
+            >
+              I understand
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex-1 h-9 text-xs"
+                onClick={handleDismiss}
+              >
+                Not now
+              </Button>
+              <Button
+                size="sm"
+                className="flex-1 h-9 text-xs bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+                onClick={handleInstall}
+                disabled={installing}
+              >
+                <Download className="w-3.5 h-3.5" />
+                {installing ? "Installing..." : "Install App"}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

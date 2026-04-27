@@ -9,8 +9,8 @@ let mapTileTrimInFlight = false;
 // Only cache truly immutable assets (icons/manifest that don't change between deploys)
 const PRECACHE_URLS = [
   '/manifest.json',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/FamilyMart.png',
+  '/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {

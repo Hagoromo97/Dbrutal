@@ -91,6 +91,17 @@
   100% { transform: translateX(0);   opacity: 1; }
 }
 
+@keyframes route-card-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* ── Button improvements: smooth transitions, shadows & hover effects ──────── */
 button[data-slot="button"] {
   position: relative;

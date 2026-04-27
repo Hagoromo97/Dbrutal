@@ -2612,7 +2612,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
             <div
               onMouseEnter={() => setHoveredRouteId(route.id)}
               onMouseLeave={() => setHoveredRouteId(prev => (prev === route.id ? null : prev))}
-              style={{ width: '100%', maxWidth: cardW, height: cardH, borderRadius: 22, overflow: 'hidden', position: 'relative', background: 'hsl(var(--card) / 0.58)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', border: `${cardBorderWidth}px solid ${cardBorderColor}`, boxShadow: cardShadow, transition: 'border-color 180ms ease, box-shadow 180ms ease, border-width 180ms ease' }}
+              style={{ width: '100%', maxWidth: cardW, height: cardH, borderRadius: 22, overflow: 'hidden', position: 'relative', background: 'hsl(var(--card) / 0.58)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', border: `${cardBorderWidth}px solid ${cardBorderColor}`, boxShadow: cardShadow, transition: 'border-color 180ms ease, box-shadow 180ms ease, border-width 180ms ease, transform 300ms ease, opacity 300ms ease', animation: `route-card-slide-in 0.4s ease-out ${routeIndex * 0.1}s both`, transform: isCardHovered ? 'scale(1.02)' : 'scale(1)' }}
             >
               {/* Sliding wrapper */}
               <div style={{ position: 'relative', zIndex: 1, display: 'flex', width: cardW * 3, height: '100%', transform: cardPanel.edit ? `translateX(-${cardW * 2}px)` : cardPanel.info ? `translateX(-${cardW}px)` : 'translateX(0)', transition: 'transform 0.38s cubic-bezier(0.4,0,0.2,1)' }}>

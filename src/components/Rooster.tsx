@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { useEditMode } from "@/contexts/EditModeContext"
 import { getRouteColorPalette } from "@/lib/route-colors"
@@ -333,6 +334,23 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
   const [manageTab, setManageTab] = useState<"staff" | "shift">("staff")
   const [historyQuery, setHistoryQuery] = useState("")
 
+  // Selected shifts for bulk actions
+  const [selectedShifts, setSelectedShifts] = useState<string[]>([])
+
+  // Bulk action dialogs
+  const [changeStaffDialog, setChangeStaffDialog] = useState<{
+    open: boolean
+    selectedResourceId?: string
+  }>({ open: false })
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false)
+  const [deleteStaffConfirmDialog, setDeleteStaffConfirmDialog] = useState<{
+    open: boolean
+    resourceId?: string
+    resourceName?: string
+  }>({ open: false })
+
+  // ── Load from DB on mount ──────────────────────────────────────────────────
+
   // ── Load from DB on mount ──────────────────────────────────────────────────
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -359,6 +377,13 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
 
   useEffect(() => { loadData() }, [loadData])
 
+  // Clear selection when edit mode is turned off
+  useEffect(() => {
+    if (!isEditMode) {
+      setSelectedShifts([])
+    }
+  }, [isEditMode])
+
   // Sync palette whenever Settings saves new route colours
   useEffect(() => {
     const handler = () => setRouteColorPalette(getRouteColorPalette())
@@ -373,6 +398,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
   const [dialogTimeEnabled, setDialogTimeEnabled] = useState(false)
   const [shiftEndDate, setShiftEndDate] = useState(toDateKey(today))
   const [shiftDurationDays, setShiftDurationDays] = useState("1")
+  const [endDateMode, setEndDateMode] = useState<"date" | "duration">("date")
 
   const resourceById = useMemo(() => {
     const map = new Map<string, Resource>()
@@ -463,7 +489,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
   const monthDates = useMemo(() => getMonthDates(currentDate), [currentDate])
   const colDates: Date[] = viewMode === "month" ? monthDates : weekDates
   const staffColWidth = 108
-  const dayColWidth = viewMode === "month" ? 84 : 100
+  const dayColWidth = viewMode === "month" ? 75 : 105
 
   // ── Shift CRUD ────────────────────────────────────────────────────────────
 
@@ -475,6 +501,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
     setShiftType("route")
     setOffSubType("off")
     setDialogTimeEnabled(false)
+    setEndDateMode("date")
     const startDate = date ?? toDateKey(currentDate)
     setShiftEndDate(startDate)
     setShiftDurationDays("1")
@@ -494,6 +521,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
     setShiftType(detected)
     setOffSubType(detected === "off" ? detectOffSubType(shift.title) : "off")
     setDialogTimeEnabled(detected === "route")
+    setEndDateMode("date")
     setShiftEndDate(shift.date)
     setShiftDurationDays("1")
     setShiftForm({
@@ -596,6 +624,67 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
       setShifts(prev => prev.filter(s => s.resourceId !== id))
       toast.success("Staff removed")
     } else toast.error("Failed to delete staff")
+  }
+
+  // ── Bulk Actions ──────────────────────────────────────────────────────────
+
+  const toggleShiftSelection = (shiftId: string) => {
+    setSelectedShifts(prev => 
+      prev.includes(shiftId) 
+        ? prev.filter(id => id !== shiftId)
+        : [...prev, shiftId]
+    )
+  }
+
+  const clearSelection = () => setSelectedShifts([])
+
+  const bulkChangeStaff = async (newResourceId: string) => {
+    const selectedShiftObjects = shifts.filter(s => selectedShifts.includes(s.id))
+    
+    // Check if any target dates already have 2 shifts for the new staff
+    const conflicts = selectedShiftObjects.filter(shift => {
+      const existingShifts = shifts.filter(s => 
+        s.resourceId === newResourceId && 
+        s.date === shift.date &&
+        !selectedShifts.includes(s.id) // Don't count shifts being moved
+      )
+      return existingShifts.length >= 2
+    })
+    
+    if (conflicts.length > 0) {
+      toast.error(`Cannot move shifts: ${conflicts[0].date} already has 2 shifts for the selected staff`)
+      return
+    }
+
+    const results = await Promise.all(
+      selectedShiftObjects.map(shift => 
+        apiSaveShift({ ...shift, resourceId: newResourceId })
+      )
+    )
+    if (results.every(Boolean)) {
+      setShifts(prev => prev.map(s => 
+        selectedShifts.includes(s.id) 
+          ? { ...s, resourceId: newResourceId }
+          : s
+      ))
+      toast.success(`${selectedShifts.length} shift${selectedShifts.length > 1 ? 's' : ''} moved to ${resources.find(r => r.id === newResourceId)?.name}`)
+      clearSelection()
+    } else {
+      toast.error("Failed to update some shifts")
+    }
+  }
+
+  const bulkDeleteShifts = async () => {
+    const results = await Promise.all(
+      selectedShifts.map(id => apiDeleteShift(id))
+    )
+    if (results.every(Boolean)) {
+      setShifts(prev => prev.filter(s => !selectedShifts.includes(s.id)))
+      toast.success(`${selectedShifts.length} shift${selectedShifts.length > 1 ? 's' : ''} deleted`)
+      clearSelection()
+    } else {
+      toast.error("Failed to delete some shifts")
+    }
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -705,6 +794,30 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
               />
             </label>
           </div>
+
+          {isEditMode && selectedShifts.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1 h-7 px-2.5 rounded-lg border border-border bg-card hover:bg-muted text-[11px] font-semibold transition-colors shrink-0">
+                  <Settings2 className="size-3" />
+                  Action ({selectedShifts.length})
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setChangeStaffDialog({ open: true })}>
+                  <Users className="size-4 mr-2" />
+                  Change Staff
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setDeleteConfirmDialog(true)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="size-4 mr-2" />
+                  Delete Events
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
         </div>
 
@@ -867,7 +980,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                             className={`cursor-pointer border-b border-r border-border p-1.5 text-center align-middle transition-colors ${
                               isToday ? "bg-primary/[0.04]" : ""
                             } hover:bg-muted/30`}
-                            style={{ width: `${dayColWidth}px`, minWidth: `${dayColWidth}px`, minHeight: "72px" }}
+                            style={{ width: `${dayColWidth}px`, minWidth: `${dayColWidth}px`, minHeight: "80px" }}
                             onClick={() => openAddShift(resource.id, dateKey)}
                           >
                             <div className="flex flex-col items-center gap-1.5">
@@ -879,6 +992,8 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                                   routeColor={routeEffectiveColorMap.get(shift.title)}
                                   isEditMode={isEditMode}
                                   onEdit={() => openEditShift(shift)}
+                                  isSelected={selectedShifts.includes(shift.id)}
+                                  onToggleSelect={() => toggleShiftSelection(shift.id)}
                                 />
                               ))}
                             </div>
@@ -956,7 +1071,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                               className={`border-b border-r border-border p-1.5 align-top transition-colors ${
                                 isTodaySpan ? "bg-primary/[0.04]" : ""
                               }`}
-                              style={{ minHeight: "72px" }}
+                              style={{ minHeight: "80px" }}
                             >
                               <div className="flex flex-col gap-1.5">
                                 {orderedShifts.map(shift => (
@@ -967,6 +1082,8 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                                     routeColor={routeEffectiveColorMap.get(shift.title)}
                                     isEditMode={isEditMode}
                                     onEdit={() => openEditShift(shift)}
+                                    isSelected={selectedShifts.includes(shift.id)}
+                                    onToggleSelect={() => toggleShiftSelection(shift.id)}
                                   />
                                 ))}
                                 {mergedShift && span > 1 && (
@@ -1145,9 +1262,33 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium">End Date</label>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium">End Date</label>
+                  <div className="flex border border-border rounded-md overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setEndDateMode("date")}
+                      className={`flex-1 h-8 text-xs font-medium transition-colors ${
+                        endDateMode === "date"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      Pick Date
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndDateMode("duration")}
+                      className={`flex-1 h-8 text-xs font-medium transition-colors ${
+                        endDateMode === "duration"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      Set Duration
+                    </button>
+                  </div>
+                  {endDateMode === "date" ? (
                     <input
                       type="date"
                       value={shiftEndDate}
@@ -1159,26 +1300,38 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                       }}
                       className="h-9 rounded-md border border-input bg-background px-3 text-[11px] md:text-[11px] focus:outline-none focus:ring-2 focus:ring-ring [color-scheme:light] dark:[color-scheme:dark]"
                     />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium">Duration (days)</label>
-                    <input
-                      type="number"
-                      min={1}
-                      step={1}
-                      value={shiftDurationDays}
-                      onChange={e => {
-                        const next = e.target.value
-                        setShiftDurationDays(next)
-                        const durationNum = Number(next)
-                        if (Number.isFinite(durationNum) && durationNum > 0) {
-                          setShiftEndDate(addDaysToDateKey(shiftForm.date, Math.floor(durationNum) - 1))
-                        }
-                      }}
-                      className="h-9 rounded-md border border-input bg-background px-3 text-[11px] md:text-[11px] focus:outline-none focus:ring-2 focus:ring-ring"
-                      placeholder="e.g. 5"
-                    />
-                  </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium">End Date</label>
+                        <input
+                          type="date"
+                          value={shiftEndDate}
+                          readOnly
+                          className="h-9 rounded-md border border-input bg-muted/50 px-3 text-[11px] md:text-[11px] cursor-not-allowed [color-scheme:light] dark:[color-scheme:dark]"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium">Duration (days)</label>
+                        <input
+                          type="number"
+                          min={1}
+                          step={1}
+                          value={shiftDurationDays}
+                          onChange={e => {
+                            const next = e.target.value
+                            setShiftDurationDays(next)
+                            const durationNum = Number(next)
+                            if (Number.isFinite(durationNum) && durationNum > 0) {
+                              setShiftEndDate(addDaysToDateKey(shiftForm.date, Math.floor(durationNum) - 1))
+                            }
+                          }}
+                          className="h-9 rounded-md border border-input bg-background px-3 text-[11px] md:text-[11px] focus:outline-none focus:ring-2 focus:ring-ring"
+                          placeholder="e.g. 5"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 {shiftType === "route" && (
                   <div className="flex items-center justify-end">
@@ -1534,7 +1687,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
           <div className="px-5 py-3 flex items-center justify-between gap-2">
             <div>
               {resourceDialog.mode === "edit" && resourceDialog.resource && (
-                <Button variant="destructive" size="sm" onClick={async () => { await deleteResource(resourceDialog.resource!.id); setResourceDialog({ open: false, mode: "add" }) }} className="gap-1.5">
+                <Button variant="destructive" size="sm" onClick={() => setDeleteStaffConfirmDialog({ open: true, resourceId: resourceDialog.resource!.id, resourceName: resourceDialog.resource!.name })} className="gap-1.5">
                   <Trash2 className="size-3.5" />Delete
                 </Button>
               )}
@@ -1546,6 +1699,142 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ── Change Staff Dialog ───────────────────────────────────────────────── */}
+      <Dialog open={changeStaffDialog.open} onOpenChange={o => !o && setChangeStaffDialog({ open: false })}>
+        <DialogContent className="max-w-sm rounded-2xl p-0 overflow-hidden gap-0" onOpenAutoFocus={e => e.preventDefault()}>
+          <DialogHeader className="px-5 pt-5 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex shrink-0 items-center justify-center p-2 bg-primary/10 rounded-lg text-primary">
+                <Users className="size-5" />
+              </div>
+              <DialogTitle className="text-base font-semibold tracking-tight">
+                Change Staff
+              </DialogTitle>
+            </div>
+          </DialogHeader>
+          <Separator />
+          <div className="px-5 py-4 flex flex-col gap-4">
+            <p className="text-sm text-muted-foreground">
+              Move {selectedShifts.length} selected shift{selectedShifts.length > 1 ? 's' : ''} to another staff member.
+            </p>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium">Select Staff</label>
+              <select
+                value={changeStaffDialog.selectedResourceId || ""}
+                onChange={e => setChangeStaffDialog(prev => ({ ...prev, selectedResourceId: e.target.value }))}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">-- Select Staff --</option>
+                {resources.map(r => (
+                  <option key={r.id} value={r.id}>{r.name} ({r.role})</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <Separator />
+          <div className="px-5 py-3 flex items-center justify-between gap-2">
+            <Button variant="outline" size="sm" onClick={() => setChangeStaffDialog({ open: false })}>
+              Cancel
+            </Button>
+            <Button 
+              size="sm" 
+              onClick={async () => {
+                if (!changeStaffDialog.selectedResourceId) {
+                  toast.error("Please select a staff member")
+                  return
+                }
+                await bulkChangeStaff(changeStaffDialog.selectedResourceId)
+                setChangeStaffDialog({ open: false })
+              }}
+            >
+              Change Staff
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Delete Confirmation Dialog ────────────────────────────────────────── */}
+      <Dialog open={deleteConfirmDialog} onOpenChange={setDeleteConfirmDialog}>
+        <DialogContent className="max-w-sm rounded-2xl p-0 overflow-hidden gap-0" onOpenAutoFocus={e => e.preventDefault()}>
+          <DialogHeader className="px-5 pt-5 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex shrink-0 items-center justify-center p-2 bg-red-500/10 rounded-lg text-red-500">
+                <Trash2 className="size-5" />
+              </div>
+              <DialogTitle className="text-base font-semibold tracking-tight">
+                Delete Events
+              </DialogTitle>
+            </div>
+          </DialogHeader>
+          <Separator />
+          <div className="px-5 py-4">
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to delete {selectedShifts.length} selected shift{selectedShifts.length > 1 ? 's' : ''}? 
+              This action cannot be undone.
+            </p>
+          </div>
+          <Separator />
+          <div className="px-5 py-3 flex items-center justify-between gap-2">
+            <Button variant="outline" size="sm" onClick={() => setDeleteConfirmDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={async () => {
+                await bulkDeleteShifts()
+                setDeleteConfirmDialog(false)
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Delete Staff Confirmation Dialog ──────────────────────────────────── */}
+      <Dialog open={deleteStaffConfirmDialog.open} onOpenChange={o => !o && setDeleteStaffConfirmDialog({ open: false })}>
+        <DialogContent className="max-w-sm rounded-2xl p-0 overflow-hidden gap-0" onOpenAutoFocus={e => e.preventDefault()}>
+          <DialogHeader className="px-5 pt-5 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex shrink-0 items-center justify-center p-2 bg-red-500/10 rounded-lg text-red-500">
+                <Trash2 className="size-5" />
+              </div>
+              <DialogTitle className="text-base font-semibold tracking-tight">
+                Delete Staff
+              </DialogTitle>
+            </div>
+          </DialogHeader>
+          <Separator />
+          <div className="px-5 py-4">
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to delete <strong>{deleteStaffConfirmDialog.resourceName}</strong>? 
+              This will also remove all their assigned shifts. This action cannot be undone.
+            </p>
+          </div>
+          <Separator />
+          <div className="px-5 py-3 flex items-center justify-between gap-2">
+            <Button variant="outline" size="sm" onClick={() => setDeleteStaffConfirmDialog({ open: false })}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={async () => {
+                if (deleteStaffConfirmDialog.resourceId) {
+                  await deleteResource(deleteStaffConfirmDialog.resourceId)
+                  setDeleteStaffConfirmDialog({ open: false })
+                  setResourceDialog({ open: false, mode: "add" })
+                }
+              }}
+            >
+              Delete Staff
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   )
 }
@@ -1558,12 +1847,16 @@ function ShiftBlock({
   routeColor,
   isEditMode,
   onEdit,
+  isSelected,
+  onToggleSelect,
 }: {
   shift: Shift
   shiftType: string
   routeColor?: string
   isEditMode: boolean
   onEdit: () => void
+  isSelected?: boolean
+  onToggleSelect?: () => void
 }) {
   // Use live route colour from Settings palette; fall back to the colour saved on the shift
   const displayColor = routeColor || shift.color
@@ -1574,20 +1867,34 @@ function ShiftBlock({
 
   return (
     <div
-      className={`select-none rounded-[4px] border shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] transition-all ${
+      className={`select-none rounded-[4px] border shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] transition-all relative ${
         isEditMode ? "cursor-pointer hover:brightness-95 active:scale-[0.98]" : "cursor-default"
       }`}
       style={{
         backgroundColor: displayColor,
         borderColor: "rgba(0, 0, 0, 0.16)",
       }}
-      onClick={e => { e.stopPropagation(); if (isEditMode) onEdit() }}
+      onClick={e => { 
+        e.stopPropagation(); 
+        if (isEditMode) onEdit()
+      }}
       title={`${shift.title}${shiftType ? ` — ${shiftType}` : ""}: ${startLabel} – ${endLabel} (${duration}h)`}
     >
-      <div className="px-1.5 py-1 flex flex-col items-center text-center">
+      {isEditMode && onToggleSelect && (
+        <div className="absolute -top-1 -right-0 z-10">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={onToggleSelect}
+            onClick={e => e.stopPropagation()}
+            className="w-4 h-4 rounded border-2 border-gray-300 bg-white/95 hover:border-primary focus:ring-2 focus:ring-primary/20 focus:border-primary"
+          />
+        </div>
+      )}
+      <div className="px-2 py-1.5 flex flex-col items-center text-center">
         {isEditMode ? (
           <>
-            <div className="max-w-[94px] truncate text-[10px] font-semibold leading-tight tracking-[0.01em]" style={{ color: textColor }}>
+            <div className="max-w-[104px] truncate text-[10px] font-semibold leading-tight tracking-[0.01em]" style={{ color: textColor }}>
               {shift.title}{shiftType ? ` — ${shiftType}` : ""}
             </div>
             <div className="text-[9px] leading-tight whitespace-nowrap mt-0.5" style={{ color: textColor, opacity: 0.92 }}>
@@ -1595,7 +1902,7 @@ function ShiftBlock({
             </div>
           </>
         ) : (
-          <div className="max-w-[94px] truncate text-[10px] font-semibold leading-tight tracking-[0.01em]" style={{ color: textColor }}>
+          <div className="max-w-[104px] truncate text-[10px] font-semibold leading-tight tracking-[0.01em]" style={{ color: textColor }}>
             {shift.title}{shiftType ? ` — ${shiftType}` : ""}
           </div>
         )}
