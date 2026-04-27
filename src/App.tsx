@@ -19,7 +19,7 @@ const CustomRoutePage = lazy(() => import("@/components/CustomRoutePage").then(m
 import { EditModeProvider } from "@/contexts/EditModeContext"
 import { DeviceProvider } from "@/contexts/DeviceContext"
 import { Toaster } from "sonner"
-import { Home, Package, Settings2, Images, ChevronDown, ChevronUp, ChevronsUpDown, ArrowUp, ArrowDown, Truck, List, Layers, MapPin, ClipboardList, Users, Globe, ExternalLink, Pin, X, Minus, Plus, Archive, ArchiveRestore, Search, Info, Cog, MapPinned, TableProperties, Expand, Shrink } from "lucide-react"
+import { Home, Package, Settings2, Images, ChevronDown, ChevronUp, ChevronsUpDown, ArrowUp, ArrowDown, Truck, List, Layers, MapPin, ClipboardList, Users, ExternalLink, Pin, X, Minus, Plus, Archive, ArchiveRestore, Search, Info, Cog, MapPinned, TableProperties, Expand, Shrink } from "lucide-react"
 import { RowInfoModal } from "@/components/RowInfoModal"
 import {
   Breadcrumb,

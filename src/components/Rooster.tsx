@@ -294,8 +294,24 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
   const { isEditMode } = useEditMode()
 
   const [viewMode, setViewMode] = useState<ViewMode>(viewModeProp)
+  const [viewModeTransition, setViewModeTransition] = useState<"idle" | "out" | "in">("idle")
 
   useEffect(() => { setViewMode(viewModeProp) }, [viewModeProp])
+  useEffect(() => {
+    if (viewModeTransition === "out") {
+      const timeout = window.setTimeout(() => {
+        setViewMode((value) => (value === "month" ? "week" : "month"))
+        setViewModeTransition("in")
+      }, 140)
+      return () => window.clearTimeout(timeout)
+    }
+
+    if (viewModeTransition === "in") {
+      const timeout = window.setTimeout(() => setViewModeTransition("idle"), 180)
+      return () => window.clearTimeout(timeout)
+    }
+  }, [viewModeTransition])
+
   const [currentDate, setCurrentDate] = useState(new Date())
   const [resources, setResources] = useState<Resource[]>([])
   const [shifts, setShifts] = useState<Shift[]>([])
@@ -488,8 +504,8 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
   // Column dates for current view
   const monthDates = useMemo(() => getMonthDates(currentDate), [currentDate])
   const colDates: Date[] = viewMode === "month" ? monthDates : weekDates
-  const staffColWidth = 108
-  const dayColWidth = viewMode === "month" ? 75 : 105
+  const staffColWidth = 104
+  const dayColWidth = viewMode === "month" ? 73 : 103
 
   // ── Shift CRUD ────────────────────────────────────────────────────────────
 
@@ -740,8 +756,9 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
-            onClick={() => setViewMode((value) => (value === "month" ? "week" : "month"))}
-            className="h-7 px-3 text-xs font-semibold rounded-lg border border-border bg-card hover:bg-muted transition-colors shrink-0"
+            onClick={() => { if (viewModeTransition === "idle") setViewModeTransition("out") }}
+            disabled={viewModeTransition !== "idle"}
+            className={`h-7 px-3 text-xs font-semibold rounded-lg border border-border bg-card transition-colors shrink-0 ${viewModeTransition !== "idle" ? "opacity-60 cursor-not-allowed" : "hover:bg-muted"}`}
           >
             {viewMode === "month" ? "Month" : "Week"}
           </button>
@@ -857,7 +874,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
       </div>
 
       {/* ── Grid ─────────────────────────────────────────────────────────────── */}
-      <div className="flex-1 min-h-0 overflow-auto">
+      <div className={`flex-1 min-h-0 overflow-auto transition-all duration-200 ease-out ${viewModeTransition === "out" ? "opacity-0 scale-[0.98]" : "opacity-100 scale-100"}`}>
         {resources.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-5 h-full text-muted-foreground py-20">
             <div className="w-16 h-16 rounded-2xl bg-muted/60 flex items-center justify-center">
@@ -877,7 +894,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
             )}
           </div>
         ) : (
-          <table className="border-collapse text-center" style={{ width: "max-content", minWidth: "100%", tableLayout: "fixed" }}>
+          <table className="border-collapse text-center" style={{ width: "max-content", tableLayout: "fixed" }}>
             <colgroup>
               <col style={{ width: `${staffColWidth}px`, minWidth: `${staffColWidth}px` }} />
               {colDates.map(d => (
@@ -886,7 +903,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
             </colgroup>
             <thead>
               <tr>
-                <th className="sticky top-0 left-0 z-30 border-b border-r border-border bg-card px-2.5 py-2.5 text-center" style={{ width: `${staffColWidth}px`, minWidth: `${staffColWidth}px` }}>
+                <th className="sticky top-0 left-0 z-30 border-b border-r border-border bg-card px-2 py-2 text-center" style={{ width: `${staffColWidth}px`, minWidth: `${staffColWidth}px` }}>
                   <span className="flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-foreground/80">
                     <Users className="size-3" />Staff
                   </span>
@@ -897,7 +914,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                   return (
                     <th
                       key={toDateKey(date)}
-                      className={`sticky top-0 z-20 border-b border-r border-border px-1.5 py-2 text-center font-normal ${
+                      className={`sticky top-0 z-20 border-b border-r border-border px-1 py-1.5 text-center font-normal ${
                         isToday ? "bg-primary/10" : "bg-muted/55"
                       }`}
                       style={{ width: `${dayColWidth}px`, minWidth: `${dayColWidth}px` }}
@@ -926,7 +943,7 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                   <tr key={resource.id} className={ri % 2 !== 0 ? "bg-muted/[0.025]" : ""}>
 
                     {/* ── Staff cell ── */}
-                    <td className="sticky left-0 z-10 border-b border-r border-border bg-card p-2.5 align-top">
+                    <td className="sticky left-0 z-10 border-b border-r border-border bg-card p-2 align-top">
                       <div className="flex flex-col items-center text-center">
                           <p className="text-xs font-semibold text-foreground leading-tight whitespace-nowrap">{resource.name}</p>
                           {resource.role && (
@@ -977,10 +994,10 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                         return (
                           <td
                             key={dateKey}
-                            className={`cursor-pointer border-b border-r border-border p-1.5 text-center align-middle transition-colors ${
+                            className={`cursor-pointer border-b border-r border-border p-1 text-center align-middle transition-colors ${
                               isToday ? "bg-primary/[0.04]" : ""
                             } hover:bg-muted/30`}
-                            style={{ width: `${dayColWidth}px`, minWidth: `${dayColWidth}px`, minHeight: "80px" }}
+                            style={{ width: `${dayColWidth}px`, minWidth: `${dayColWidth}px`, minHeight: "74px" }}
                             onClick={() => openAddShift(resource.id, dateKey)}
                           >
                             <div className="flex flex-col items-center gap-1.5">
@@ -1068,10 +1085,10 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                             <td
                               key={dateKey}
                               colSpan={span}
-                              className={`border-b border-r border-border p-1.5 align-top transition-colors ${
+                              className={`border-b border-r border-border p-1 align-top transition-colors ${
                                 isTodaySpan ? "bg-primary/[0.04]" : ""
                               }`}
-                              style={{ minHeight: "80px" }}
+                              style={{ minHeight: "74px" }}
                             >
                               <div className="flex flex-col gap-1.5">
                                 {orderedShifts.map(shift => (
