@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
+import { useRegisterRefresh } from "@/contexts/RefreshContext"
 import { ImageIcon, LayoutGrid, Loader2 } from "lucide-react"
 import "lightgallery/css/lightgallery.css"
 import "lightgallery/css/lg-thumbnail.css"
@@ -57,21 +58,23 @@ export function Album() {
   const [showGridPicker, setShowGridPicker] = useState(false)
   const lgInstanceRef = useRef<any>(null)
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch("/api/plano")
-        if (!res.ok) throw new Error("Failed to load")
-        const json = await res.json()
-        setPages(json.data ?? [])
-      } catch (e: any) {
-        setLoadError(e.message)
-      } finally {
-        setIsLoading(false)
-      }
+  const loadAlbum = useCallback(async () => {
+    setIsLoading(true)
+    setLoadError(null)
+    try {
+      const res = await fetch("/api/plano")
+      if (!res.ok) throw new Error("Failed to load")
+      const json = await res.json()
+      setPages(json.data ?? [])
+    } catch (e: any) {
+      setLoadError(e.message)
+    } finally {
+      setIsLoading(false)
     }
-    load()
   }, [])
+
+  useEffect(() => { loadAlbum() }, [loadAlbum])
+  useRegisterRefresh(loadAlbum)
 
   // Flatten all images from all pages/rows
   const allImages: FlatImage[] = pages.flatMap(page =>

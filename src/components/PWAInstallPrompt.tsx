@@ -103,7 +103,7 @@ export function PWAInstallPrompt() {
 
           {/* Text */}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground leading-tight">Install Dbrutals</p>
+            <p className="text-sm font-semibold text-foreground leading-tight">Install DataxX</p>
             {showingIOSGuide ? (
               <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
                 On iPhone/iPad, tap <Share className="inline-block w-3.5 h-3.5 -mt-0.5" /> then choose Add to Home Screen.

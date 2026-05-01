@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
-import { RefreshCw, Loader2, AlertCircle, AlertTriangle, Search, X, ChevronUp, ChevronDown as ChevronDownIcon, ChevronsUpDown, Filter, Check, Columns2, Info } from "lucide-react"
+import { Link, Loader2, AlertCircle, AlertTriangle, Search, X, ChevronUp, ChevronDown as ChevronDownIcon, ChevronsUpDown, Filter, Check, Columns2, Info } from "lucide-react"
+import { toast } from "sonner"
 import { cn, parseSmartQuery } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RowInfoModal } from "@/components/RowInfoModal"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useEditMode } from "@/contexts/EditModeContext"
+import { useRoadDistances } from "@/hooks/use-road-distances"
+import { useRegisterRefresh } from "@/contexts/RefreshContext"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface DeliveryPoint {
@@ -159,6 +162,30 @@ const DELIVERY_ITEMS: DeliveryItem[] = [
 
 const DELIVERY_MAP = new Map(DELIVERY_ITEMS.map(d => [d.value, d]))
 
+// ─── Share-link helpers ───────────────────────────────────────────────────────
+interface ViewState {
+  s: string
+  r: string[]
+  d: string[]
+  sk: SortKey
+  sd: SortDir
+  vc: ColumnKey[]
+}
+
+function encodeViewState(state: ViewState): string {
+  return btoa(encodeURIComponent(JSON.stringify(state)))
+}
+
+function readHashState(): ViewState | null {
+  try {
+    const hash = window.location.hash
+    if (!hash.startsWith("#loc=")) return null
+    return JSON.parse(decodeURIComponent(atob(hash.slice(5)))) as ViewState
+  } catch {
+    return null
+  }
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export function DeliveryTableDialog() {
   const { registerSaveHandler, setHasUnsavedChanges } = useEditMode()
@@ -172,18 +199,32 @@ export function DeliveryTableDialog() {
   const [isSaving, setIsSaving]         = useState(false)
   const [saveError, setSaveError]       = useState<string | null>(null)
 
-  // Search & Filter
-  const [search, setSearch]                     = useState("")
-  const [filterRoutes, setFilterRoutes]         = useState<Set<string>>(new Set())
-  const [filterDeliveries, setFilterDeliveries] = useState<Set<string>>(new Set())
+  // Read shared-link state once on mount (before useState calls)
+  const initHash = useRef(readHashState())
+
+  // Search & Filter — initialised from shared link if present
+  const [search, setSearch]                     = useState(initHash.current?.s ?? "")
+  const [filterRoutes, setFilterRoutes]         = useState<Set<string>>(new Set(initHash.current?.r ?? []))
+  const [filterDeliveries, setFilterDeliveries] = useState<Set<string>>(new Set(initHash.current?.d ?? []))
   const [filterOpen, setFilterOpen]             = useState(false)
-  const [draftFilterRoutes, setDraftFilterRoutes] = useState<Set<string>>(new Set())
-  const [draftFilterDeliveries, setDraftFilterDeliveries] = useState<Set<string>>(new Set())
+  const [draftFilterRoutes, setDraftFilterRoutes] = useState<Set<string>>(new Set(initHash.current?.r ?? []))
+  const [draftFilterDeliveries, setDraftFilterDeliveries] = useState<Set<string>>(new Set(initHash.current?.d ?? []))
   const [settingsOpen, setSettingsOpen]         = useState(false)
   const [filterTab, setFilterTab]               = useState<"routes" | "delivery" | "columns">("routes")
   const [sortOpen, setSortOpen]                 = useState(false)
-  const [visibleColumns, setVisibleColumns]     = useState<Set<ColumnKey>>(new Set(DEFAULT_VISIBLE_COLUMNS))
-  const [draftVisibleColumns, setDraftVisibleColumns] = useState<Set<ColumnKey>>(new Set(DEFAULT_VISIBLE_COLUMNS))
+  const [visibleColumns, setVisibleColumns]     = useState<Set<ColumnKey>>(
+    initHash.current?.vc ? new Set(initHash.current.vc) : new Set(DEFAULT_VISIBLE_COLUMNS)
+  )
+  const [draftVisibleColumns, setDraftVisibleColumns] = useState<Set<ColumnKey>>(
+    initHash.current?.vc ? new Set(initHash.current.vc) : new Set(DEFAULT_VISIBLE_COLUMNS)
+  )
+
+  // Clear hash from URL once state is applied (keep URL clean)
+  useEffect(() => {
+    if (window.location.hash.startsWith("#loc=")) {
+      history.replaceState(null, "", window.location.pathname + window.location.search)
+    }
+  }, [])
 
   const toggleColumn = (key: ColumnKey, scope: "live" | "draft" = "live") => {
     const updateColumns = scope === "draft" ? setDraftVisibleColumns : setVisibleColumns
@@ -202,9 +243,9 @@ export function DeliveryTableDialog() {
     !areSetsEqual(filterDeliveries, draftFilterDeliveries) ||
     !areSetsEqual(visibleColumns, draftVisibleColumns)
 
-  // Sort — default: code asc
-  const [sortKey, setSortKey] = useState<SortKey>("code")
-  const [sortDir, setSortDir] = useState<SortDir>("asc")
+  // Sort — default: code asc, initialised from shared link if present
+  const [sortKey, setSortKey] = useState<SortKey>(initHash.current?.sk ?? "code")
+  const [sortDir, setSortDir] = useState<SortDir>(initHash.current?.sd ?? "asc")
   const [customSortOrders, setCustomSortOrders] = useState<SavedRowOrder[]>([])
   const [activeCustomSort, setActiveCustomSort] = useState<SavedRowOrder | null>(null)
   const prevFilterRoutesRef = useRef<Set<string>>(new Set())
@@ -253,6 +294,7 @@ export function DeliveryTableDialog() {
   }, [])
 
   useEffect(() => { fetchRoutes() }, [fetchRoutes])
+  useRegisterRefresh(fetchRoutes)
 
   // ── Pending-edit helpers ─────────────────────────────────────────────────
   const pointKey = (pt: FlatPoint) => `${pt.routeId}::${pt._rowIndex}`
@@ -394,21 +436,37 @@ export function DeliveryTableDialog() {
   }
 
   const totalPoints = flat.length
+  const locationRoadDistances = useRoadDistances(
+    DEFAULT_MAP_CENTER,
+    displayed,
+    'direct',
+  )
   const pointDistances = useMemo(() => {
     const distances = new Map<string, string>()
-
-    displayed.forEach((pt) => {
+    displayed.forEach((pt, i) => {
       const hasCoordinates = pt.latitude !== 0 || pt.longitude !== 0
       if (!hasCoordinates) return
-
-      distances.set(
-        pointKey(pt),
-        formatKm(haversineKm(DEFAULT_MAP_CENTER.lat, DEFAULT_MAP_CENTER.lng, pt.latitude, pt.longitude))
-      )
+      const value = locationRoadDistances.segments[i]
+      if (value === null || value === undefined) return
+      distances.set(pointKey(pt), formatKm(value))
     })
-
     return distances
-  }, [displayed])
+  }, [displayed, locationRoadDistances])
+
+  const generateLink = () => {
+    const encoded = encodeViewState({
+      s:  search,
+      r:  [...filterRoutes],
+      d:  [...filterDeliveries],
+      sk: sortKey,
+      sd: sortDir,
+      vc: [...visibleColumns],
+    })
+    const url = `${window.location.origin}/#loc=${encoded}`
+    navigator.clipboard.writeText(url)
+      .then(() => toast.success("Link disalin ke clipboard!"))
+      .catch(() => toast.error("Gagal salin link"))
+  }
 
   return (
     <div className="flex flex-col flex-1 min-h-0 border rounded-xl overflow-hidden shadow-sm bg-background">
@@ -428,9 +486,9 @@ export function DeliveryTableDialog() {
             <AlertTriangle className="w-3 h-3" />{dupNameCount} dup name
           </span>
         )}
-        <Button size="sm" variant="ghost" onClick={fetchRoutes} disabled={loading || isSaving} className="ml-auto h-7 gap-1.5 text-xs">
-          <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
-          Refresh
+        <Button size="sm" variant="ghost" onClick={generateLink} disabled={loading} className="ml-auto h-7 gap-1.5 text-xs">
+          <Link className="w-3.5 h-3.5" />
+          Generate Link
         </Button>
         {saveError && (
           <span className="flex items-center gap-1 text-xs font-medium text-destructive">
@@ -719,8 +777,10 @@ export function DeliveryTableDialog() {
       )}
 
       {/* ── Table — fills remaining height, scrolls inside ── */}
-      {(!loading || flat.length > 0) && !error && (
-        <div className="flex-1 overflow-auto min-h-0">
+      {(!loading || flat.length > 0) && !error && (() => {
+        const tbodyKey = `${search}|${[...filterRoutes].sort().join(',')}|${[...filterDeliveries].sort().join(',')}|${sortKey}|${sortDir}`
+        return (
+        <div className="flex-1 overflow-auto min-h-0" style={{ animation: 'loc-table-fade 0.3s ease-out both' }}>
           <table className="border-collapse text-xs whitespace-nowrap min-w-max w-full">
             <thead className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm text-[11px] uppercase tracking-wider text-muted-foreground font-semibold border-b border-border">
               <tr>
@@ -733,7 +793,7 @@ export function DeliveryTableDialog() {
                 {visibleColumns.has("action")   && <th className="px-2 py-3 text-center w-12">Action</th>}
               </tr>
             </thead>
-            <tbody className="font-semibold">
+            <tbody key={tbodyKey} className="font-semibold">
               {displayed.length === 0 ? (
                 <tr>
                   <td colSpan={visibleColumns.size} className="text-center py-16 text-muted-foreground">
@@ -744,8 +804,12 @@ export function DeliveryTableDialog() {
                 displayed.map((pt, idx) => (
                   <tr
                     key={`${pt.routeId}-${pt.code}-${idx}`}
+                    style={{
+                      animation: 'loc-row-in 0.22s ease-out both',
+                      animationDelay: `${Math.min(idx * 18, 320)}ms`,
+                    }}
                     className={cn(
-                      "transition-colors",
+                      "transition-colors duration-150",
                       (pt._dupCode || pt._dupName)
                         ? "bg-amber-50/60 dark:bg-amber-900/10 hover:bg-amber-100/60 dark:hover:bg-amber-900/20"
                         : idx % 2 === 0 ? "hover:bg-muted/40" : "bg-muted/20 hover:bg-muted/40"
@@ -809,7 +873,8 @@ export function DeliveryTableDialog() {
             </tbody>
           </table>
         </div>
-      )}
+        )
+      })()}
 
       {/* ── Settings Modal ──────────────────────────────────────────── */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>

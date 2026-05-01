@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from "react"
+import { useState, useEffect, useRef, useMemo, useCallback } from "react"
+import { useRegisterRefresh } from "@/contexts/RefreshContext"
 import { Plus, Trash2, ChevronLeft, ChevronRight, Image as ImageIcon, Pencil, MoreVertical, ArrowUp, ArrowDown, Upload, Link, Loader2, Save, Layers, Search, ChevronDown } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
@@ -60,25 +61,28 @@ export function PlanoVM() {
   const [loadError, setLoadError] = useState<string | null>(null)
 
   // Load data from database on mount
-  useEffect(() => {
-    const loadPages = async () => {
-      try {
-        setIsLoading(true)
-        setLoadError(null)
-        const res = await fetch('/api/plano')
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        const json = await res.json()
-        const loaded: PlanoPage[] = json.data ?? []
-        setPages(loaded)
-        if (loaded.length > 0) setActivePage(loaded[0].id)
-      } catch (err) {
-        setLoadError(err instanceof Error ? err.message : 'Failed to load data')
-      } finally {
-        setIsLoading(false)
-      }
+  const loadPages = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setLoadError(null)
+      const res = await fetch('/api/plano')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const json = await res.json()
+      const loaded: PlanoPage[] = json.data ?? []
+      setPages(loaded)
+      setActivePage(prev => {
+        if (prev && loaded.some(p => p.id === prev)) return prev
+        return loaded.length > 0 ? loaded[0].id : ""
+      })
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Failed to load data')
+    } finally {
+      setIsLoading(false)
     }
-    loadPages()
   }, [])
+
+  useEffect(() => { loadPages() }, [loadPages])
+  useRegisterRefresh(loadPages)
 
   const [activePage, setActivePage] = useState<string>("")
   const [pageListOpen, setPageListOpen] = useState(false)

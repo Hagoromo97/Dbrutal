@@ -149,7 +149,7 @@ export function AppSidebar({
   }), [sidebarBackground])
 
   const sidebarOverlayStyle = React.useMemo<React.CSSProperties>(() => ({
-    backgroundColor: mode === "dark" ? "rgba(18, 18, 18, 0.88)" : "rgba(250, 250, 250, 0.78)",
+    backgroundColor: mode === "dark" ? "rgba(18, 18, 18, 0.84)" : "rgba(250, 250, 250, 0.74)",
   }), [mode])
 
   const text = {
@@ -257,7 +257,7 @@ export function AppSidebar({
                 <img
                   src={fmLogo}
                   alt="FM logo"
-                  className="mx-auto h-[80px] w-[80px] shrink-0 object-contain"
+                  className="mx-auto h-[90px] w-[90px] shrink-0 object-contain"
                 />
               </a>
             </SidebarMenuButton>

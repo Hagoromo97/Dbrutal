@@ -1,4 +1,6 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react"
+import { useRoadDistances } from "@/hooks/use-road-distances"
+import { useRegisterRefresh } from "@/contexts/RefreshContext"
 import { ClipboardList, List, Info, Plus, Check, X, Edit2, Trash2, Search, Save, ArrowUp, ArrowDown, Truck, Loader2, Cog, CheckCircle2, MapPin, Route, AlertCircle, History, MapPinned, TableProperties, Shrink, Expand, ChevronUp, ChevronDown, ChevronsUpDown, Filter, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -580,10 +582,8 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
   const [routeToDelete, setRouteToDelete] = useState<Route | null>(null)
   const [newRoute, setNewRoute] = useState({ name: "", code: "", shift: "AM" })
   const [searchQuery, setSearchQuery] = useState("")
-  const [searchFocused, setSearchFocused] = useState(false)
   const [filterModalOpen, setFilterModalOpen] = useState(false)
   const [filterModalTab, setFilterModalTab] = useState<'shift' | 'region'>('shift')
-  const isInteractingWithSearchSuggestions = useRef(false)
   const [combinedFilter, setCombinedFilter] = useState<RouteCombinedFilter>('all')
   const { region: filterRegion, shift: filterShift } = useMemo(
     () => parseRouteCombinedFilter(combinedFilter),
@@ -811,6 +811,15 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
     fetchRoutes()
   }, [fetchRoutes])
 
+  // Register pull-to-refresh / refresh button handler
+  const fetchRoutesRef = useRef(fetchRoutes)
+  useEffect(() => { fetchRoutesRef.current = fetchRoutes }, [fetchRoutes])
+  const currentRouteIdRef = useRef(currentRouteId)
+  useEffect(() => { currentRouteIdRef.current = currentRouteId }, [currentRouteId])
+  useRegisterRefresh(useCallback(async () => {
+    await fetchRoutesRef.current(currentRouteIdRef.current)
+  }, []))
+
   // Listen for external open-route events (e.g. from pinned route on home page)
   // Check after routes finish loading so the dialog can find the route
   useEffect(() => {
@@ -975,27 +984,6 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
     if (scroller) scroller.scrollTo({ left: 0, behavior: 'auto' })
   }, [searchQuery, combinedFilter])
 
-  const SEARCH_SUGGESTION_LIMIT = 20
-
-  const searchSuggestions = useMemo(() => {
-    const { nameQuery, shiftFilter: queryShift } = parseSmartQuery(searchQuery)
-    const q = nameQuery.toLowerCase()
-    if (!searchQuery.trim()) return routes.slice(0, SEARCH_SUGGESTION_LIMIT)
-    return routes
-      .filter(route => {
-        if (queryShift && route.shift !== queryShift) return false
-        if (!q) return true
-        return (
-          route.name.toLowerCase().includes(q) ||
-          route.code.toLowerCase().includes(q) ||
-          route.deliveryPoints.some(point =>
-            point.name.toLowerCase().includes(q) ||
-            point.code.toLowerCase().includes(q)
-          )
-        )
-      })
-      .slice(0, SEARCH_SUGGESTION_LIMIT)
-  }, [routes, searchQuery])
 
   const [editingCell, setEditingCell] = useState<{ rowCode: string; field: EditableField } | null>(null)
   const [editValue, setEditValue] = useState<string>("")
@@ -1545,33 +1533,24 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
     [effectiveColumns]
   )
 
-  // Compute distances for Km column
-  // direct → straight-line from start point to each row
+  // Compute distances for Km column following actual road routes (with haversine fallback)
+  // direct → road distance from start point to each row
   // step   → cumulative chain: start point → Row1 → Row2 → Row3 …
   const isStepMode = kmMode === 'step'
+  const roadDistances = useRoadDistances(
+    kmStartPoint,
+    sortedDeliveryPoints,
+    isStepMode ? 'step' : 'direct',
+  )
   const pointDistances = useMemo(() => {
-    const result: { display: number; segment: number }[] = []
-    if (!isStepMode) {
-      // Direct distance mode: each row shows straight-line from chosen start point
-      for (const point of sortedDeliveryPoints) {
-        const direct = haversineKm(kmStartPoint.lat, kmStartPoint.lng, point.latitude, point.longitude)
-        result.push({ display: direct, segment: direct })
-      }
-    } else {
-      // Cumulative chain mode: start point → Row1 → Row2 → Row3 …
-      let cumulative = 0
-      let prevLat = kmStartPoint.lat
-      let prevLng = kmStartPoint.lng
-      for (const point of sortedDeliveryPoints) {
-        const segment = haversineKm(prevLat, prevLng, point.latitude, point.longitude)
-        cumulative += segment
-        result.push({ display: cumulative, segment })
-        prevLat = point.latitude
-        prevLng = point.longitude
-      }
-    }
-    return result
-  }, [sortedDeliveryPoints, isStepMode, kmStartPoint])
+    return sortedDeliveryPoints.map((_, i) => {
+      const segment = roadDistances.segments[i] ?? 0
+      const display = isStepMode
+        ? roadDistances.cumulative[i] ?? 0
+        : segment
+      return { display, segment }
+    })
+  }, [sortedDeliveryPoints, roadDistances, isStepMode])
 
   const tableRows = useMemo(() => {
     const q = detailSearchQuery.trim().toLowerCase()
@@ -2278,17 +2257,8 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
         <button
           type="button"
           aria-label="Close popover"
-          className="fixed inset-0 z-40 bg-background/50 backdrop-blur-[2px]"
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-[2px]"
           onClick={() => setBadgePopover(null)}
-        />
-      )}
-      {searchFocused && (
-        <button
-          type="button"
-          aria-label="Close search suggestions"
-          className="fixed inset-0 z-10 bg-transparent"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => setSearchFocused(false)}
         />
       )}
       {/* Route List */}
@@ -2311,13 +2281,6 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
               placeholder="Search routes… (e.g. KL am, Sel 3 pm)"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => {
-                if (isInteractingWithSearchSuggestions.current) {
-                  return
-                }
-                setTimeout(() => setSearchFocused(false), 120)
-              }}
               className={`w-full h-11 sm:h-12 pl-11 pr-10 bg-background border rounded-lg text-[12px] md:text-[12px] text-foreground font-[inherit] placeholder:text-muted-foreground/50 outline-none transition-all duration-200 ${
                 searchQuery.trim()
                   ? "border-primary/50 ring-2 ring-primary/20"
@@ -2333,45 +2296,6 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
               </button>
             )}
 
-            {searchFocused && searchSuggestions.length > 0 && (
-              <div
-                className="absolute z-40 mt-2.5 w-full rounded-xl border border-border bg-background shadow-lg overflow-hidden max-h-[220px] overflow-y-auto overscroll-contain"
-                style={{ WebkitOverflowScrolling: 'touch' }}
-                onMouseDown={() => {
-                  isInteractingWithSearchSuggestions.current = true
-                }}
-                onTouchStart={() => {
-                  isInteractingWithSearchSuggestions.current = true
-                }}
-                onMouseUp={() => {
-                  isInteractingWithSearchSuggestions.current = false
-                }}
-                onTouchEnd={() => {
-                  isInteractingWithSearchSuggestions.current = false
-                }}
-                onMouseLeave={() => {
-                  isInteractingWithSearchSuggestions.current = false
-                }}
-              >
-                {searchSuggestions.map((route) => (
-                  <button
-                    key={route.id}
-                    type="button"
-                    className="w-full text-left px-3 py-3 hover:bg-muted/60 transition-colors"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      isInteractingWithSearchSuggestions.current = false
-                      setSearchQuery(route.name)
-                      setCurrentRouteId(route.id)
-                      setSearchFocused(false)
-                    }}
-                  >
-                    <p className="text-[11px] font-semibold text-foreground truncate">{route.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{route.code} . {route.shift}</p>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           <button
@@ -2612,7 +2536,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
             <div
               onMouseEnter={() => setHoveredRouteId(route.id)}
               onMouseLeave={() => setHoveredRouteId(prev => (prev === route.id ? null : prev))}
-              style={{ width: '100%', maxWidth: cardW, height: cardH, borderRadius: 22, overflow: 'hidden', position: 'relative', background: 'hsl(var(--card) / 0.58)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', border: `${cardBorderWidth}px solid ${cardBorderColor}`, boxShadow: cardShadow, transition: 'border-color 180ms ease, box-shadow 180ms ease, border-width 180ms ease, transform 300ms ease, opacity 300ms ease', animation: `route-card-slide-in 0.4s ease-out ${routeIndex * 0.1}s both`, transform: isCardHovered ? 'scale(1.02)' : 'scale(1)' }}
+              style={{ width: '100%', maxWidth: cardW, height: cardH, borderRadius: 20, overflow: 'hidden', position: 'relative', background: 'hsl(var(--card) / 0.58)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', border: `${cardBorderWidth}px solid ${cardBorderColor}`, boxShadow: cardShadow, transition: 'border-color 180ms ease, box-shadow 180ms ease, border-width 180ms ease, transform 300ms ease, opacity 300ms ease', animation: `route-card-slide-in 0.4s ease-out ${routeIndex * 0.1}s both`, transform: isCardHovered ? 'scale(1.02)' : 'scale(1)' }}
             >
               {/* Sliding wrapper */}
               <div style={{ position: 'relative', zIndex: 1, display: 'flex', width: cardW * 3, height: '100%', transform: cardPanel.edit ? `translateX(-${cardW * 2}px)` : cardPanel.info ? `translateX(-${cardW}px)` : 'translateX(0)', transition: 'transform 0.38s cubic-bezier(0.4,0,0.2,1)' }}>
@@ -2747,11 +2671,11 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                             return (
                               <Popover key={type} open={isOpen} onOpenChange={open => setBadgePopover(open ? popKey : null)}>
                                 <PopoverTrigger asChild>
-                                  <span onClick={() => setBadgePopover(isOpen ? null : popKey)} style={{ display: 'inline-flex', alignItems: 'center', fontSize: badgeFs, fontWeight: 700, color: badgeTextColor, background: badgeBackground, padding: '4px 11px', borderRadius: '5px', border: `1px solid ${badgeBorder}`, boxShadow: `0 2px 8px ${markerColor}35, 0 1px 0 #ffffff1f inset`, flexShrink: 0, letterSpacing: '0.03em', textShadow: badgeTextShadow, cursor: 'pointer', opacity: isOpen ? 0.75 : 1, transition: 'opacity 0.15s' }}>
+                                  <span onClick={() => setBadgePopover(isOpen ? null : popKey)} style={{ display: 'inline-flex', alignItems: 'center', fontSize: badgeFs, fontWeight: 700, color: badgeTextColor, background: badgeBackground, padding: '4px 11px', borderRadius: '6px', border: `1px solid ${badgeBorder}`, boxShadow: `0 4px 16px ${markerColor}30, 0 1px 0 #ffffff1f inset`, flexShrink: 0, letterSpacing: '0.03em', textShadow: badgeTextShadow, cursor: 'pointer', opacity: isOpen ? 0.75 : 1, transition: 'opacity 0.15s, transform 0.15s' }}>
                                     {getDeliveryLabel(type)}&nbsp;<span style={{ opacity: 0.5, fontWeight: 500 }}>&bull;</span>&nbsp;<span style={{ color: badgeCountColor, fontWeight: 700 }}>{pts.length}</span>
                                   </span>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-64 p-0 z-50 backdrop-blur-xl bg-background/90 dark:bg-card/90 border border-border/60 shadow-2xl rounded-2xl overflow-hidden" align="center" side="top">
+                                <PopoverContent className="w-64 p-0 z-50 backdrop-blur-xl bg-background/90 dark:bg-card/90 shadow-2xl rounded-xl overflow-hidden" style={{ border: `1px solid ${cardBorderColor}` }} align="center" side="top">
                                   {/* Header */}
                                   <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border/60" style={{ background: `${markerColor}14` }}>
                                     <span className="size-2.5 rounded-full shrink-0" style={{ background: markerColor }} />
@@ -3178,8 +3102,9 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                       </div>
                     </div>
                     {/* Table / Map */}
-                    <div className="flex-1 overflow-auto scroll-smooth">
+                    <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                     {dialogView === 'map' ? (
+                      <div className="flex-1 overflow-auto min-h-0">
                       <div className="h-full min-h-[400px] relative">
                         <DeliveryMap deliveryPoints={mapDeliveryPoints} scrollZoom={true} showPolyline={showPolyline} markerStyle={markerStyle} mapStyle={mapStyle} startPoint={kmStartPoint} includeStartInBounds={false} refitToken={mapRefitToken} resizeToken={mapResizeToken} />
                         <button
@@ -3193,8 +3118,9 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                           <MapPinned className="size-4" />
                         </button>
                       </div>
+                      </div>
                     ) : (
-                        <div className="h-full flex flex-col">
+                        <div className="flex-1 flex flex-col min-h-0">
                           <div className="shrink-0 border-b border-border/70 bg-background/95 px-3 py-2.5 flex items-center gap-2">
                             <div className="relative flex-1">
                               <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/60" />
@@ -3236,8 +3162,9 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                             )}
                           </div>
 
+                          <div className="flex-1 overflow-auto min-h-0">
                           {tableRows.length === 0 ? (
-                            <div className="flex flex-1 items-center justify-center p-6 text-center text-muted-foreground">
+                            <div className="flex h-full items-center justify-center p-6 text-center text-muted-foreground">
                               <div className="space-y-1">
                                 <p className="text-sm font-semibold text-foreground">No matching delivery point</p>
                                 <p className="text-xs">Try a different keyword.</p>
@@ -3322,7 +3249,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                                         }}
                                       >
                                         <PopoverTrigger asChild>
-                                          <button className="hover:bg-accent px-3 py-1 rounded flex items-center justify-center gap-1.5 group mx-auto text-[9px] font-semibold" onClick={() => startEdit(point.code, 'code', point.code)}>
+                                          <button className="hover:bg-accent px-3 py-1 rounded flex w-fit mx-auto items-center justify-center gap-1.5 group text-[9px] font-semibold" onClick={() => startEdit(point.code, 'code', point.code)}>
                                             <span className={`text-[9px] font-semibold ${pendingCellEdits.has(`${point.code}-code`) ? 'text-amber-600 dark:text-amber-400' : ''}`}>{point.code}</span>
                                             <Edit2 className="size-3 opacity-0 group-hover:opacity-50 transition-opacity" />
                                           </button>
@@ -3370,7 +3297,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                                         }}
                                       >
                                         <PopoverTrigger asChild>
-                                          <button className="hover:bg-accent px-3 py-1 rounded flex items-center justify-center gap-1.5 group mx-auto text-[9px] font-semibold" onClick={() => startEdit(point.code, 'name', point.name)}>
+                                          <button className="hover:bg-accent px-3 py-1 rounded flex w-fit mx-auto items-center justify-center gap-1.5 group text-[9px] font-semibold" onClick={() => startEdit(point.code, 'name', point.name)}>
                                             <span className={`text-[9px] font-semibold ${pendingCellEdits.has(`${point.code}-name`) ? 'text-amber-600 dark:text-amber-400' : ''}`}>{point.name}</span>
                                             <Edit2 className="size-3 opacity-0 group-hover:opacity-50 transition-opacity" />
                                           </button>
@@ -3398,7 +3325,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                                       <td key="delivery" className="px-3 h-9 text-center">
                                         {isEditMode ? (
                                           <button
-                                            className="group inline-flex items-center gap-1.5 hover:opacity-70 transition-opacity mx-auto"
+                                            className="group flex w-fit mx-auto items-center gap-1.5 hover:opacity-70 transition-opacity"
                                             onClick={() => openDeliveryTypeModal(point)}
                                           >
                                             <span className={`text-[9px] font-semibold ${isPending ? 'text-amber-600 dark:text-amber-400' : ''}`}>
@@ -3477,6 +3404,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                         </tbody>
                       </table>
                     )}
+                    </div>
                     </div>
                     )}
                     </div>
